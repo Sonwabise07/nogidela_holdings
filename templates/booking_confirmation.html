@@ -1,0 +1,403 @@
+{% extends "base.html" %}
+
+{% block title %}Booking Confirmation - Nogidela Holdings{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ============ CONFIRMATION PAGE STYLES ============ */
+    
+    .confirmation-container {
+        max-width: 700px;
+        margin: 0 auto;
+        padding: 40px 20px;
+    }
+    
+    .success-icon {
+        width: 100px;
+        height: 100px;
+        background: linear-gradient(135deg, #28a745, #20c997);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 30px;
+        animation: scaleIn 0.5s ease;
+        box-shadow: 0 10px 30px rgba(40, 167, 69, 0.3);
+    }
+    
+    .success-icon i {
+        font-size: 3.5rem;
+        color: white;
+    }
+    
+    @keyframes scaleIn {
+        from {
+            transform: scale(0);
+            opacity: 0;
+        }
+        to {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+    
+    .confirmation-card {
+        background: white;
+        border-radius: 20px;
+        padding: 40px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        margin-bottom: 30px;
+    }
+    
+    .booking-detail-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 15px 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .booking-detail-row:last-child {
+        border-bottom: none;
+    }
+    
+    .detail-label {
+        font-weight: 600;
+        color: var(--text-muted);
+        font-size: 1rem;
+    }
+    
+    .detail-value {
+        font-weight: 500;
+        color: var(--navy);
+        text-align: right;
+        font-size: 1rem;
+    }
+    
+    .total-amount-box {
+        background: linear-gradient(135deg, var(--forest-green), var(--forest-green-light));
+        color: white;
+        padding: 20px;
+        border-radius: 15px;
+        margin: 20px 0;
+        text-align: center;
+    }
+    
+    .total-amount-box .amount {
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin: 10px 0;
+    }
+    
+    .info-box {
+        background: #e7f3ff;
+        border-left: 4px solid #007bff;
+        padding: 20px;
+        border-radius: 10px;
+        margin-top: 30px;
+    }
+    
+    .info-box i {
+        font-size: 1.5rem;
+        color: #007bff;
+        margin-right: 10px;
+    }
+    
+    .reference-number {
+        background: #f8f9fa;
+        border: 2px dashed var(--forest-green);
+        padding: 15px;
+        border-radius: 10px;
+        text-align: center;
+        margin: 20px 0;
+        font-family: 'Courier New', monospace;
+    }
+    
+    .reference-number .ref-label {
+        font-size: 0.9rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    
+    .reference-number .ref-value {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: var(--navy);
+        margin-top: 5px;
+    }
+    
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+        .confirmation-card {
+            padding: 25px;
+        }
+        
+        .booking-detail-row {
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .detail-value {
+            text-align: left;
+        }
+        
+        .total-amount-box .amount {
+            font-size: 2rem;
+        }
+        
+        .row.g-3 .col-md-4 {
+            margin-bottom: 10px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="confirmation-container">
+    
+    <!-- Success Icon -->
+    <div class="success-icon">
+        <i class="bi bi-check-lg"></i>
+    </div>
+    
+    <!-- Success Message -->
+    <div class="text-center mb-4">
+        <h1 class="fw-bold text-navy mb-3">
+            <span class="english-text">Booking Confirmed! 🎉</span>
+            <span class="xhosa-text">Ukubhukisha Kuqinisekisiwe! 🎉</span>
+        </h1>
+        <p class="lead text-muted">
+            <span class="english-text">Thank you for choosing Nogidela Holdings</span>
+            <span class="xhosa-text">Enkosi ngokukhetha i-Nogidela Holdings</span>
+        </p>
+    </div>
+    
+    <!-- Booking Reference Number -->
+    <div class="reference-number">
+        <div class="ref-label">
+            <span class="english-text">Booking Reference</span>
+            <span class="xhosa-text">Inombolo Yobhukisha</span>
+        </div>
+        <div class="ref-value">NH-{{ booking.id | string | upper | replace('1', 'A') | replace('2', 'B') | replace('3', 'C') }}{{ booking.id }}</div>
+    </div>
+    
+    <!-- Booking Details Card -->
+    <div class="confirmation-card">
+        <h4 class="fw-bold text-navy mb-4">
+            <i class="bi bi-file-text me-2"></i>
+            <span class="english-text">Booking Details</span>
+            <span class="xhosa-text">Iinkcukacha Zokubhukisha</span>
+        </h4>
+        
+        <!-- Service Name -->
+        <div class="booking-detail-row">
+            <span class="detail-label">
+                <i class="bi bi-briefcase me-2"></i>
+                <span class="english-text">Service</span>
+                <span class="xhosa-text">Inkonzo</span>
+            </span>
+            <span class="detail-value">
+                <span class="english-text">{{ service.name }}</span>
+                <span class="xhosa-text">{{ service.name_xh }}</span>
+            </span>
+        </div>
+        
+        <!-- Date -->
+        <div class="booking-detail-row">
+            <span class="detail-label">
+                <i class="bi bi-calendar-event me-2"></i>
+                <span class="english-text">Service Date</span>
+                <span class="xhosa-text">Umhla Wenkonzo</span>
+            </span>
+            <span class="detail-value">{{ booking.service_date.strftime('%A, %d %B %Y') }}</span>
+        </div>
+        
+        <!-- Location -->
+        <div class="booking-detail-row">
+            <span class="detail-label">
+                <i class="bi bi-geo-alt me-2"></i>
+                <span class="english-text">Location</span>
+                <span class="xhosa-text">Indawo</span>
+            </span>
+            <span class="detail-value">{{ booking.location }}</span>
+        </div>
+        
+        <!-- Quantity (if applicable) -->
+        {% if booking.quantity and booking.quantity > 1 %}
+        <div class="booking-detail-row">
+            <span class="detail-label">
+                <i class="bi bi-box me-2"></i>
+                <span class="english-text">Quantity</span>
+                <span class="xhosa-text">Ubungakanani</span>
+            </span>
+            <span class="detail-value">{{ booking.quantity }}</span>
+        </div>
+        {% endif %}
+        
+        <!-- Customer Name -->
+        <div class="booking-detail-row">
+            <span class="detail-label">
+                <i class="bi bi-person me-2"></i>
+                <span class="english-text">Your Name</span>
+                <span class="xhosa-text">Igama Lakho</span>
+            </span>
+            <span class="detail-value">{{ booking.client_name }}</span>
+        </div>
+        
+        <!-- Phone -->
+        <div class="booking-detail-row">
+            <span class="detail-label">
+                <i class="bi bi-telephone me-2"></i>
+                <span class="english-text">Phone</span>
+                <span class="xhosa-text">Ifowuni</span>
+            </span>
+            <span class="detail-value">{{ booking.client_contact }}</span>
+        </div>
+        
+        <!-- Email (if provided) -->
+        {% if booking.client_email %}
+        <div class="booking-detail-row">
+            <span class="detail-label">
+                <i class="bi bi-envelope me-2"></i>
+                <span class="english-text">Email</span>
+                <span class="xhosa-text">I-imeyili</span>
+            </span>
+            <span class="detail-value">{{ booking.client_email }}</span>
+        </div>
+        {% endif %}
+        
+        <!-- Additional Notes (if provided) -->
+        {% if booking.additional_notes %}
+        <div class="booking-detail-row">
+            <span class="detail-label">
+                <i class="bi bi-chat-left-text me-2"></i>
+                <span class="english-text">Notes</span>
+                <span class="xhosa-text">Amanqaku</span>
+            </span>
+            <span class="detail-value">{{ booking.additional_notes }}</span>
+        </div>
+        {% endif %}
+        
+        <!-- Estimated Cost (if applicable) -->
+        {% if booking.estimated_cost %}
+        <div class="total-amount-box">
+            <div class="small text-white-50">
+                <span class="english-text">Estimated Total</span>
+                <span class="xhosa-text">Ixabiso Eliqikelelweyo</span>
+            </div>
+            <div class="amount">R{{ "%.2f"|format(booking.estimated_cost) | replace('.00', '') }}</div>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Information Box - What Happens Next -->
+    <div class="info-box">
+        <div class="d-flex align-items-start">
+            <i class="bi bi-info-circle-fill flex-shrink-0"></i>
+            <div>
+                <h6 class="fw-bold mb-2">
+                    <span class="english-text">✅ What Happens Next?</span>
+                    <span class="xhosa-text">✅ Kwenzeka Ntoni Emva Koko?</span>
+                </h6>
+                <p class="mb-3 small">
+                    <span class="english-text">
+                        • Your booking has been sent to our team via email<br>
+                        • We will review your request and contact you within 24 hours<br>
+                        • You will receive confirmation via phone call, WhatsApp, or email<br>
+                        • Please keep your phone handy so we can reach you
+                    </span>
+                    <span class="xhosa-text">
+                        • Ukubhukisha kwakho kuthunyelwe kwiqela lethu nge-imeyili<br>
+                        • Siza kuhlola isicelo sakho size sikunxibelelane kwiiyure ezingama-24<br>
+                        • Uya kufumana isiqinisekiso ngomnxeba, i-WhatsApp, okanye i-imeyili<br>
+                        • Nceda ugcine ifowuni yakho ikufutshane ukuze sikwazi ukukufikelela
+                    </span>
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Contact Information Box -->
+    <div class="confirmation-card mt-4">
+        <h5 class="fw-bold text-navy mb-3 text-center">
+            <i class="bi bi-telephone-fill me-2"></i>
+            <span class="english-text">Need to Reach Us?</span>
+            <span class="xhosa-text">Ufuna Ukusifikelela?</span>
+        </h5>
+        <p class="text-center text-muted mb-4 small">
+            <span class="english-text">If you have any questions about your booking, contact us:</span>
+            <span class="xhosa-text">Ukuba unayo nayiphi na imibuzo malunga nokubhukisha kwakho, qhagamshelana nathi:</span>
+        </p>
+        
+        <div class="row g-3">
+            <div class="col-md-4">
+                <a href="tel:{{ contacts.phone_display.replace(' ', '') }}" class="btn btn-outline-navy w-100" style="padding: 15px;">
+                    <i class="bi bi-telephone-fill d-block mb-2" style="font-size: 1.5rem;"></i>
+                    <div class="small fw-bold">
+                        <span class="english-text">Call Us</span>
+                        <span class="xhosa-text">Sitsalele</span>
+                    </div>
+                    <div class="small">{{ contacts.phone_display }}</div>
+                </a>
+            </div>
+            <div class="col-md-4">
+                <a href="https://wa.me/{{ contacts.whatsapp }}?text=Hi%20Nogidela%20Holdings!%20I%20have%20a%20question%20about%20booking%20NH-{{ booking.id }}" 
+                   class="btn btn-outline-success w-100" 
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   style="padding: 15px;">
+                    <i class="bi bi-whatsapp d-block mb-2" style="font-size: 1.5rem;"></i>
+                    <div class="small fw-bold">
+                        <span class="english-text">WhatsApp</span>
+                        <span class="xhosa-text">WhatsApp</span>
+                    </div>
+                    <div class="small">
+                        <span class="english-text">Chat with us</span>
+                        <span class="xhosa-text">Thetha nathi</span>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-4">
+                <a href="mailto:{{ contacts.email }}?subject=Question%20about%20Booking%20NH-{{ booking.id }}" 
+                   class="btn btn-outline-primary w-100"
+                   style="padding: 15px;">
+                    <i class="bi bi-envelope-fill d-block mb-2" style="font-size: 1.5rem;"></i>
+                    <div class="small fw-bold">
+                        <span class="english-text">Email Us</span>
+                        <span class="xhosa-text">Sithumelele i-Email</span>
+                    </div>
+                    <div class="small">{{ contacts.email }}</div>
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Back to Home Button -->
+    <div class="text-center mt-4">
+        <a href="{{ url_for('home') }}" class="btn btn-outline-navy btn-lg">
+            <i class="bi bi-house me-2"></i>
+            <span class="english-text">Back to Home</span>
+            <span class="xhosa-text">Buyela Ekhaya</span>
+        </a>
+    </div>
+    
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Auto-open WhatsApp after 2 seconds (optional - can be removed if not wanted)
+    // setTimeout(() => {
+    //     if (confirm('Would you like to send this booking via WhatsApp now?')) {
+    //         window.open('{{ whatsapp_link }}', '_blank');
+    //     }
+    // }, 2000);
+    
+    // Print functionality (optional)
+    function printBooking() {
+        window.print();
+    }
+</script>
+{% endblock %}

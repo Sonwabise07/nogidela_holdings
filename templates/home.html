@@ -1,0 +1,673 @@
+{% extends "base.html" %}
+
+{% block title %}Nogidela Holdings | Professional Services in Eastern Cape{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ============ HERO SECTION REDESIGN ============ */
+    .hero-section {
+        background: linear-gradient(135deg, #1a3a52 0%, #0d1f2d 100%);
+        position: relative;
+        overflow: hidden;
+        min-height: 70vh;
+        display: flex;
+        align-items: center;
+    }
+
+    .hero-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 50%;
+        height: 100%;
+        background: linear-gradient(135deg, rgba(45, 80, 22, 0.1) 0%, rgba(45, 80, 22, 0.05) 100%);
+        clip-path: polygon(30% 0, 100% 0, 100% 100%, 0% 100%);
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    .company-name {
+        font-size: 4rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #ffffff 0%, #e0e0e0 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        letter-spacing: 2px;
+        margin-bottom: 1rem;
+    }
+
+    .company-tagline {
+        font-size: 1.3rem;
+        color: #b8d4a8;
+        font-weight: 300;
+        margin-bottom: 2rem;
+        font-style: italic;
+    }
+
+    .hero-stats {
+        display: flex;
+        gap: 3rem;
+        margin-top: 3rem;
+        flex-wrap: wrap;
+    }
+
+    .stat-item {
+        text-align: center;
+    }
+
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--forest-green-light);
+        display: block;
+    }
+
+    .stat-label {
+        font-size: 0.9rem;
+        color: rgba(255,255,255,0.7);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    /* ============ SCROLLING SERVICES TICKER ============ */
+    .services-ticker {
+        background: linear-gradient(90deg, #f8f9fa 0%, #ffffff 50%, #f8f9fa 100%);
+        padding: 20px 0;
+        overflow: hidden;
+        border-top: 3px solid var(--forest-green);
+        border-bottom: 3px solid var(--forest-green);
+        position: relative;
+    }
+
+    .ticker-wrapper {
+        display: flex;
+        animation: scroll-left 30s linear infinite;
+    }
+
+    .ticker-item {
+        display: flex;
+        align-items: center;
+        padding: 0 3rem;
+        white-space: nowrap;
+        font-weight: 600;
+        color: var(--navy);
+        font-size: 1.1rem;
+    }
+
+    .ticker-item i {
+        font-size: 1.5rem;
+        margin-right: 0.5rem;
+        color: var(--forest-green);
+    }
+
+    .ticker-separator {
+        color: var(--forest-green);
+        font-size: 1.5rem;
+        margin: 0 1rem;
+    }
+
+    @keyframes scroll-left {
+        0% {
+            transform: translateX(0);
+        }
+        100% {
+            transform: translateX(-50%);
+        }
+    }
+
+    /* Pause animation on hover */
+    .services-ticker:hover .ticker-wrapper {
+        animation-play-state: paused;
+    }
+
+    /* ============ TRUST SIGNALS - ENHANCED ============ */
+    .trust-card {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+
+    .trust-card:hover {
+        transform: translateY(-10px);
+        border-color: var(--forest-green);
+        box-shadow: 0 8px 30px rgba(45, 80, 22, 0.15);
+    }
+
+    .trust-card i {
+        font-size: 3.5rem;
+        margin-bottom: 1rem;
+        display: block;
+    }
+
+    /* ============ WHY CHOOSE US - REDESIGN ============ */
+    .why-choose-section {
+        background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+        position: relative;
+    }
+
+    .feature-box {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        border-left: 4px solid var(--forest-green);
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+    }
+
+    .feature-box:hover {
+        transform: translateX(10px);
+        box-shadow: 0 4px 20px rgba(45, 80, 22, 0.15);
+    }
+
+    .feature-icon {
+        font-size: 2rem;
+        color: var(--forest-green);
+        margin-right: 1rem;
+    }
+
+    /* ============ CONTACT CARD - ENHANCED ============ */
+    .contact-card-modern {
+        background: linear-gradient(135deg, var(--navy) 0%, var(--navy-dark) 100%);
+        border-radius: 20px;
+        padding: 3rem;
+        color: white;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .contact-card-modern::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(45, 80, 22, 0.2) 0%, transparent 70%);
+        animation: pulse-bg 3s ease-in-out infinite;
+    }
+
+    @keyframes pulse-bg {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+    }
+
+    .contact-card-modern .content {
+        position: relative;
+        z-index: 2;
+    }
+
+    .contact-btn-modern {
+        background: white;
+        color: var(--navy);
+        border: none;
+        padding: 1rem 1.5rem;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .contact-btn-modern:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 20px rgba(255,255,255,0.3);
+        background: var(--forest-green-light);
+        color: white;
+    }
+
+    /* ============ CTA SECTION - ENHANCED ============ */
+    .cta-section {
+        background: linear-gradient(135deg, var(--navy) 0%, #2d5016 100%);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .cta-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="2" fill="rgba(255,255,255,0.1)"/></svg>');
+        opacity: 0.3;
+    }
+
+    .cta-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    /* ============ MOBILE RESPONSIVE ============ */
+    @media (max-width: 768px) {
+        .company-name {
+            font-size: 2.5rem;
+        }
+
+        .company-tagline {
+            font-size: 1rem;
+        }
+
+        .hero-stats {
+            gap: 1.5rem;
+            justify-content: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+        }
+
+        .ticker-item {
+            font-size: 0.9rem;
+            padding: 0 1.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ============ HERO SECTION - REDESIGNED ============ -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8 hero-content">
+                <div class="fade-in">
+                    <h1 class="company-name">
+                        <span class="english-text">NOGIDELA HOLDINGS</span>
+                        <span class="xhosa-text">NOGIDELA HOLDINGS</span>
+                    </h1>
+                    
+                    <p class="company-tagline">
+                        <span class="english-text">Your Trusted Partner in Eastern Cape</span>
+                        <span class="xhosa-text">Iqabane Lakho Elithembekileyo eMpuma Koloni</span>
+                    </p>
+                    
+                    <p class="lead text-white mb-4">
+                        <span class="english-text">
+                            From grass cutting to construction, meat processing to equipment hiring - 
+                            delivering quality services that matter to our community.
+                        </span>
+                        <span class="xhosa-text">
+                            Ukusuka ekusikolweni kwengca ukuya kulwakhiwo, ukuqhawula inyama ukuya ekuqesheni izixhobo - 
+                            sinikeza iinkonzo ezisemgangathweni ezibalulekileyo kuluntu lwethu.
+                        </span>
+                    </p>
+                    
+                    <div class="d-flex gap-3 flex-wrap mb-4">
+                        <a href="{{ url_for('services') }}" class="btn btn-forest-green btn-lg">
+                            <i class="bi bi-grid-3x3-gap me-2"></i>
+                            <span class="english-text">Explore Services</span>
+                            <span class="xhosa-text">Khangela Iinkonzo</span>
+                        </a>
+                        <a href="{{ url_for('contact') }}" class="btn btn-outline-light btn-lg">
+                            <i class="bi bi-telephone me-2"></i>
+                            <span class="english-text">Get In Touch</span>
+                            <span class="xhosa-text">Qhagamshelana</span>
+                        </a>
+                    </div>
+
+                    <!-- Stats Section -->
+                    <div class="hero-stats">
+                        <div class="stat-item">
+                            <span class="stat-number"></span>
+                            <span class="stat-label">
+                                <span class="english-text">Years Experience</span>
+                                <span class="xhosa-text">Iminyaka Yamava</span>
+                            </span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number"></span>
+                            <span class="stat-label">
+                                <span class="english-text">Happy Clients</span>
+                                <span class="xhosa-text">Abathengi Abanelisekileyo</span>
+                            </span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number"></span>
+                            <span class="stat-label">
+                                <span class="english-text">Services</span>
+                                <span class="xhosa-text">Iinkonzo</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============ SCROLLING SERVICES TICKER ============ -->
+<section class="services-ticker">
+    <div class="ticker-wrapper">
+        <!-- First set of services -->
+        <div class="ticker-item">
+            <i class="bi bi-scissors"></i>
+            <span class="english-text">Meat Cutting</span>
+            <span class="xhosa-text">Ukusika Inyama</span>
+        </div>
+        <span class="ticker-separator">•</span>
+        
+        <div class="ticker-item">
+            <i class="bi bi-truck"></i>
+            <span class="english-text">Mobile Fridge Hiring</span>
+            <span class="xhosa-text">Ukuqasha iFiriji</span>
+        </div>
+        <span class="ticker-separator">•</span>
+        
+        <div class="ticker-item">
+            <i class="bi bi-tree"></i>
+            <span class="english-text">Grass Cutting</span>
+            <span class="xhosa-text">Ukusika Ingca</span>
+        </div>
+        <span class="ticker-separator">•</span>
+        
+        <div class="ticker-item">
+            <i class="bi bi-hammer"></i>
+            <span class="english-text">Construction</span>
+            <span class="xhosa-text">Ukwakha</span>
+        </div>
+        <span class="ticker-separator">•</span>
+        
+        <div class="ticker-item">
+            <i class="bi bi-truck-front-fill"></i>
+            <span class="english-text">Cattle Trailer</span>
+            <span class="xhosa-text">iTreyla Yenkomo</span>
+        </div>
+        <span class="ticker-separator">•</span>
+        
+        <div class="ticker-item">
+            <i class="bi bi-tree-fill"></i>
+            <span class="english-text">Tree Felling</span>
+            <span class="xhosa-text">Ukugawula Imithi</span>
+        </div>
+        <span class="ticker-separator">•</span>
+        
+        <div class="ticker-item">
+            <i class="bi bi-box-seam"></i>
+            <span class="english-text">General Trading</span>
+            <span class="xhosa-text">Urhwebo</span>
+        </div>
+        <span class="ticker-separator">•</span>
+        
+        <div class="ticker-item">
+            <i class="bi bi-tools"></i>
+            <span class="english-text">Site Clearance</span>
+            <span class="xhosa-text">Ukucoca Isiza</span>
+        </div>
+        <span class="ticker-separator">•</span>
+
+        <!-- Duplicate set for seamless loop -->
+        <div class="ticker-item">
+            <i class="bi bi-scissors"></i>
+            <span class="english-text">Meat Cutting</span>
+            <span class="xhosa-text">Ukusika Inyama</span>
+        </div>
+        <span class="ticker-separator">•</span>
+        
+        <div class="ticker-item">
+            <i class="bi bi-truck"></i>
+            <span class="english-text">Mobile Fridge Hiring</span>
+            <span class="xhosa-text">Ukuqasha iFiriji</span>
+        </div>
+        <span class="ticker-separator">•</span>
+        
+        <div class="ticker-item">
+            <i class="bi bi-tree"></i>
+            <span class="english-text">Grass Cutting</span>
+            <span class="xhosa-text">Ukusika Ingca</span>
+        </div>
+        <span class="ticker-separator">•</span>
+        
+        <div class="ticker-item">
+            <i class="bi bi-hammer"></i>
+            <span class="english-text">Construction</span>
+            <span class="xhosa-text">Ukwakha</span>
+        </div>
+        <span class="ticker-separator">•</span>
+        
+        <div class="ticker-item">
+            <i class="bi bi-truck-front-fill"></i>
+            <span class="english-text">Cattle Trailer</span>
+            <span class="xhosa-text">iTreyla Yenkomo</span>
+        </div>
+        <span class="ticker-separator">•</span>
+        
+        <div class="ticker-item">
+            <i class="bi bi-tree-fill"></i>
+            <span class="english-text">Tree Felling</span>
+            <span class="xhosa-text">Ukugawula Imithi</span>
+        </div>
+        <span class="ticker-separator">•</span>
+        
+        <div class="ticker-item">
+            <i class="bi bi-box-seam"></i>
+            <span class="english-text">General Trading</span>
+            <span class="xhosa-text">Urhwebo</span>
+        </div>
+        <span class="ticker-separator">•</span>
+        
+        <div class="ticker-item">
+            <i class="bi bi-tools"></i>
+            <span class="english-text">Site Clearance</span>
+            <span class="xhosa-text">Ukucoca Isiza</span>
+        </div>
+        <span class="ticker-separator">•</span>
+    </div>
+</section>
+
+<!-- ============ TRUST SIGNALS - ENHANCED ============ -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-md-3 col-6">
+                <div class="trust-card">
+                    <i class="bi bi-award-fill text-forest-green"></i>
+                    <h5 class="fw-bold mb-2">
+                        <span class="english-text">Quality Service</span>
+                        <span class="xhosa-text">Inkonzo Esemgangathweni</span>
+                    </h5>
+                    <p class="small text-muted mb-0">
+                        <span class="english-text">Professional work, every time</span>
+                        <span class="xhosa-text">Umsebenzi wobungcali</span>
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="trust-card">
+                    <i class="bi bi-clock-fill text-forest-green"></i>
+                    <h5 class="fw-bold mb-2">
+                        <span class="english-text">On Time</span>
+                        <span class="xhosa-text">Ngexesha</span>
+                    </h5>
+                    <p class="small text-muted mb-0">
+                        <span class="english-text">Reliable and punctual</span>
+                        <span class="xhosa-text">Thembeka ngexesha</span>
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="trust-card">
+                    <i class="bi bi-shield-check text-forest-green"></i>
+                    <h5 class="fw-bold mb-2">
+                        <span class="english-text">Trusted</span>
+                        <span class="xhosa-text">Ithembekile</span>
+                    </h5>
+                    <p class="small text-muted mb-0">
+                        <span class="english-text">Community first</span>
+                        <span class="xhosa-text">Uluntu kuqala</span>
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="trust-card">
+                    <i class="bi bi-currency-dollar text-forest-green"></i>
+                    <h5 class="fw-bold mb-2">
+                        <span class="english-text">Fair Prices</span>
+                        <span class="xhosa-text">Amaxabiso Afanelekileyo</span>
+                    </h5>
+                    <p class="small text-muted mb-0">
+                        <span class="english-text">Transparent pricing</span>
+                        <span class="xhosa-text">Amaxabiso acace gca</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============ WHY CHOOSE US & QUICK CONTACT - REDESIGNED ============ -->
+<section class="py-5 why-choose-section">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <!-- Why Choose Us -->
+            <div class="col-lg-6">
+                <div class="mb-4">
+                    <h2 class="fw-bold text-navy display-6 mb-2">
+                        <span class="english-text">Why Partner With Us?</span>
+                        <span class="xhosa-text">Kutheni Usebenzisana Nathi?</span>
+                    </h2>
+                    <div class="h-1 bg-forest-green" style="width: 80px; height: 4px;"></div>
+                </div>
+
+                <div class="feature-box">
+                    <div class="d-flex align-items-start">
+                        <i class="bi bi-patch-check-fill feature-icon"></i>
+                        <div>
+                            <h5 class="fw-bold text-navy mb-2">
+                                <span class="english-text">Local Expertise</span>
+                                <span class="xhosa-text">Ubuchule Bendawo</span>
+                            </h5>
+                            <p class="text-muted mb-0 small">
+                                <span class="english-text">Deep understanding of Eastern Cape needs and conditions</span>
+                                <span class="xhosa-text">Ukuqonda okunzulu kweemfuno nemeko yeMpuma Koloni</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="feature-box">
+                    <div class="d-flex align-items-start">
+                        <i class="bi bi-tools feature-icon"></i>
+                        <div>
+                            <h5 class="fw-bold text-navy mb-2">
+                                <span class="english-text">Modern Equipment</span>
+                                <span class="xhosa-text">Izixhobo Zanamhlanje</span>
+                            </h5>
+                            <p class="text-muted mb-0 small">
+                                <span class="english-text">Professional tools for superior results on every project</span>
+                                <span class="xhosa-text">Izixhobo zobugcisa zeziphumo eziphezulu kwiprojekthi nganye</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="feature-box">
+                    <div class="d-flex align-items-start">
+                        <i class="bi bi-hand-thumbs-up-fill feature-icon"></i>
+                        <div>
+                            <h5 class="fw-bold text-navy mb-2">
+                                <span class="english-text">Proven Track Record</span>
+                                <span class="xhosa-text">Imbali Eqinisekisiweyo</span>
+                            </h5>
+                            <p class="text-muted mb-0 small">
+                                <span class="english-text">Years of satisfied customers across all our services</span>
+                                <span class="xhosa-text">Iminyaka yabathengi abanelisekileyo kuzo zonke iinkonzo zethu</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="feature-box">
+                    <div class="d-flex align-items-start">
+                        <i class="bi bi-heart-fill feature-icon"></i>
+                        <div>
+                            <h5 class="fw-bold text-navy mb-2">
+                                <span class="english-text">Community Focused</span>
+                                <span class="xhosa-text">Kugxilwe Kuluntu</span>
+                            </h5>
+                            <p class="text-muted mb-0 small">
+                                <span class="english-text">Supporting local growth and development</span>
+                                <span class="xhosa-text">Ukuxhasa ukukhula nophuhliso lwendawo</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modern Contact Card -->
+            <div class="col-lg-6">
+                <div class="contact-card-modern">
+                    <div class="content">
+                        <div class="text-center mb-4">
+                            <i class="bi bi-chat-dots-fill" style="font-size: 3rem; opacity: 0.8;"></i>
+                        </div>
+                        
+                        <h3 class="fw-bold mb-3 text-center">
+                            <span class="english-text">Let's Talk About Your Project</span>
+                            <span class="xhosa-text">Masithethe Ngeprojekthi Yakho</span>
+                        </h3>
+                        
+                        <p class="text-center mb-4" style="opacity: 0.9;">
+                            <span class="english-text">
+                                Ready to get started? Choose your preferred way to reach us
+                            </span>
+                            <span class="xhosa-text">
+                                Ukulungele ukuqala? Khetha indlela oyithandayo yokusifikelela
+                            </span>
+                        </p>
+                        
+                        <div class="d-grid gap-3">
+                            <a href="https://wa.me/{{ contacts.whatsapp }}?text=Hi%20Nogidela%20Holdings!%20I%20want%20to%20enquire%20about%20your%20services" 
+                               class="contact-btn-modern" 
+                               target="_blank"
+                               rel="noopener noreferrer">
+                                <i class="bi bi-whatsapp"></i>
+                                <span class="english-text">WhatsApp Us</span>
+                                <span class="xhosa-text">WhatsApp Thina</span>
+                            </a>
+                            
+                            <a href="tel:{{ contacts.phone_display.replace(' ', '') }}" class="contact-btn-modern">
+                                <i class="bi bi-telephone-fill"></i>
+                                {{ contacts.phone_display }}
+                            </a>
+                            
+                            <a href="mailto:{{ contacts.email }}" class="contact-btn-modern">
+                                <i class="bi bi-envelope-fill"></i>
+                                {{ contacts.email }}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============ CALL TO ACTION - ENHANCED ============ -->
+
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Add smooth fade-in animation on load
+    window.addEventListener('load', function() {
+        document.querySelector('.fade-in').style.opacity = '1';
+    });
+</script>
+{% endblock %}

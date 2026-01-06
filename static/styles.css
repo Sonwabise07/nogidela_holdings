@@ -1,0 +1,343 @@
+/* Custom Color Variables */
+:root {
+    --navy: #1a3a52;
+    --navy-dark: #0f2537;
+    --forest-green: #2d5016;
+    --forest-green-light: #3d6b22;
+    --light-bg: #f8f9fa;
+}
+
+/* Body & General Styles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+}
+
+/* Navigation */
+.bg-navy {
+    background-color: var(--navy) !important;
+}
+
+.navbar-brand .logo-circle {
+    width: 50px;
+    height: 50px;
+    background-color: var(--forest-green);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 1.2rem;
+    border: 3px solid white;
+}
+
+.navbar-dark .navbar-nav .nav-link {
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    transition: all 0.3s;
+}
+
+.navbar-dark .navbar-nav .nav-link:hover {
+    color: var(--forest-green-light);
+    transform: translateY(-2px);
+}
+
+/* Custom Button Colors */
+.btn-navy {
+    background-color: var(--navy);
+    border-color: var(--navy);
+    color: white;
+}
+
+.btn-navy:hover {
+    background-color: var(--navy-dark);
+    border-color: var(--navy-dark);
+    color: white;
+}
+
+.btn-forest-green {
+    background-color: var(--forest-green);
+    border-color: var(--forest-green);
+    color: white;
+}
+
+.btn-forest-green:hover {
+    background-color: var(--forest-green-light);
+    border-color: var(--forest-green-light);
+    color: white;
+}
+
+.btn-outline-navy {
+    color: var(--navy);
+    border-color: var(--navy);
+}
+
+.btn-outline-navy:hover {
+    background-color: var(--navy);
+    border-color: var(--navy);
+    color: white;
+}
+
+/* Text Colors */
+.text-forest-green {
+    color: var(--forest-green) !important;
+}
+
+.text-navy {
+    color: var(--navy) !important;
+}
+
+.bg-forest-green-light {
+    background-color: var(--forest-green-light) !important;
+}
+
+/* Hero Section */
+.hero-section {
+    min-height: 70vh;
+    display: flex;
+    align-items: center;
+}
+
+.hero-image-placeholder {
+    min-height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Service Cards */
+.service-card {
+    transition: all 0.3s ease;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.service-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15) !important;
+}
+
+.service-icon {
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(45, 80, 22, 0.1);
+    border-radius: 50%;
+    margin: 0 auto;
+}
+
+/* WhatsApp Floating Button */
+.whatsapp-float {
+    position: fixed;
+    width: 60px;
+    height: 60px;
+    bottom: 30px;
+    right: 30px;
+    background-color: #25D366;
+    color: white;
+    border-radius: 50%;
+    text-align: center;
+    font-size: 30px;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+}
+
+.whatsapp-float:hover {
+    background-color: #128C7E;
+    color: white;
+    transform: scale(1.1);
+}
+
+/* Forms */
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--forest-green);
+    box-shadow: 0 0 0 0.2rem rgba(45, 80, 22, 0.25);
+}
+
+/* Footer */
+footer a:hover {
+    color: var(--forest-green-light) !important;
+}
+
+/* Trust Icons */
+.trust-icon {
+    width: 100px;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(45, 80, 22, 0.05);
+    border-radius: 50%;
+    margin: 0 auto;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .hero-section {
+        min-height: auto;
+        padding: 3rem 0;
+    }
+    
+    .hero-image-placeholder {
+        min-height: 250px;
+    }
+    
+    .navbar-brand span {
+        font-size: 0.9rem;
+    }
+    
+    .whatsapp-float {
+        width: 50px;
+        height: 50px;
+        font-size: 24px;
+        bottom: 20px;
+        right: 20px;
+    }
+}
+
+/* Loading Spinner */
+.spinner-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+/* Admin Panel Styles */
+.admin-sidebar {
+    min-height: calc(100vh - 56px);
+    background-color: var(--navy);
+}
+
+.admin-card {
+    border-left: 4px solid var(--forest-green);
+}
+
+/* Booking Form */
+.booking-summary {
+    background-color: var(--light-bg);
+    border-left: 4px solid var(--forest-green);
+    padding: 1.5rem;
+    border-radius: 8px;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in-up {
+    animation: fadeInUp 0.6s ease;
+}
+
+/* Category Badges */
+.badge-hiring {
+    background-color: #17a2b8;
+}
+
+.badge-meat {
+    background-color: #dc3545;
+}
+
+.badge-labor {
+    background-color: #ffc107;
+    color: #000;
+}
+
+.badge-construction {
+    background-color: #fd7e14;
+}
+
+.badge-trading {
+    background-color: #6f42c1;
+}
+
+/* Service Category Icons */
+.service-category-icon {
+    width: 70px;
+    height: 70px;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+}
+
+/* Detailed Service Cards */
+.service-card-detailed {
+    transition: all 0.3s ease;
+    overflow: hidden;
+    border-radius: 15px;
+}
+
+.service-card-detailed:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2) !important;
+}
+
+.service-image-container {
+    position: relative;
+    overflow: hidden;
+    height: 250px;
+    background-color: var(--light-bg);
+}
+
+.service-image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.service-card-detailed:hover .service-image-container img {
+    transform: scale(1.05);
+}
+
+/* Price Tag */
+.price-tag {
+    background: linear-gradient(135deg, rgba(45, 80, 22, 0.1) 0%, rgba(45, 80, 22, 0.05) 100%);
+    padding: 1rem;
+    border-radius: 10px;
+    border-left: 4px solid var(--forest-green);
+}
+
+/* Meat Service Image */
+.meat-service-image {
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Animal Type Radio Buttons */
+.btn-check:checked + .btn-outline-danger {
+    background-color: #dc3545;
+    color: white;
+    border-color: #dc3545;
+}
+
+.btn-outline-danger:hover {
+    background-color: #dc3545;
+    color: white;
+}

@@ -1,0 +1,73 @@
+# ============================================
+# NOGIDELA HOLDINGS - Git Ignore File
+# ============================================
+# These files will NOT be uploaded to Git/GitHub
+# ============================================
+
+# Environment Variables (MOST IMPORTANT!)
+.env
+*.env
+.env.local
+
+# Python Cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual Environment
+venv/
+env/
+ENV/
+.venv
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+instance/
+nogidela.db
+
+# Flask Cache
+flask_session/
+.cache
+
+# IDE Settings
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+*.log
+logs/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Uploads (if you add file upload feature later)
+uploads/
+static/uploads/
+
+# Temporary Files
+*.tmp
+*.bak
+*.backup
+.temp/
+
+# OS Files
+Thumbs.db
+.DS_Store
+desktop.ini
+
+# Security
+*.key
+*.pem
+*.crt
+*.cer
+secrets/

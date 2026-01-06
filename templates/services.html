@@ -1,0 +1,1081 @@
+{% extends "base.html" %}
+
+{% block title %}Our Services - Nogidela Holdings{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ============================================
+       CSS VARIABLES FOR EASY MAINTENANCE
+    ============================================ */
+    :root {
+        --card-border-radius: 15px;
+        --card-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        --card-shadow-hover: 0 8px 25px rgba(0,0,0,0.15);
+        --transition-speed: 0.3s;
+        --form-padding: 25px;
+        --mobile-form-padding: 20px;
+    }
+
+    /* ============================================
+       HERO SECTION
+    ============================================ */
+    .services-hero {
+        background: linear-gradient(135deg, var(--navy), var(--navy-dark));
+        color: white;
+        padding: 50px 0;
+        margin-bottom: 40px;
+        border-bottom: 4px solid var(--forest-green);
+    }
+
+    /* ============================================
+       SECTION HEADERS
+    ============================================ */
+    .section-header {
+        color: var(--navy);
+        border-bottom: 3px solid var(--forest-green);
+        padding-bottom: 12px;
+        margin-bottom: 35px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .section-header i {
+        font-size: 2rem;
+    }
+
+    /* ============================================
+       SERVICE CARDS
+    ============================================ */
+    .service-card {
+        border: none;
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--card-shadow);
+        overflow: hidden;
+        height: 100%;
+        background: white;
+        transition: all var(--transition-speed) ease;
+    }
+    
+    .service-card:hover {
+        box-shadow: var(--card-shadow-hover);
+        transform: translateY(-5px);
+    }
+
+    /* ============================================
+       IMAGE CONTAINERS - FIXED ASPECT RATIO
+    ============================================ */
+    .img-container {
+        position: relative;
+        width: 100%;
+        padding-bottom: 60%; /* 5:3 aspect ratio - adjust as needed */
+        overflow: hidden;
+        background: linear-gradient(135deg, #f0f0f0, #e0e0e0);
+        border-radius: 12px;
+        margin-bottom: 15px;
+    }
+    
+    .img-container img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+        transition: transform var(--transition-speed) ease;
+    }
+    
+    .service-card:hover .img-container img {
+        transform: scale(1.05);
+    }
+
+    /* Placeholder for services without images (like General Trading) */
+    .img-placeholder {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, var(--navy-dark), var(--navy));
+        color: white;
+    }
+    
+    .img-placeholder i {
+        font-size: 4rem;
+        margin-bottom: 10px;
+        opacity: 0.9;
+    }
+    
+    .img-placeholder span {
+        font-size: 1.2rem;
+        font-weight: 600;
+        text-align: center;
+        padding: 0 20px;
+    }
+
+    /* ============================================
+       PRICE BADGES
+    ============================================ */
+    .price-badge {
+        background: linear-gradient(135deg, var(--forest-green), var(--forest-green-light));
+        color: white;
+        padding: 8px 18px;
+        border-radius: 25px;
+        font-weight: bold;
+        display: inline-block;
+        margin: 10px 0;
+        font-size: 1.1rem;
+    }
+    
+    .price-badge.secondary {
+        background: linear-gradient(135deg, #6c757d, #5a6268);
+    }
+
+    /* ============================================
+       BOOKING FORMS
+    ============================================ */
+    .booking-form-container {
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        border-radius: var(--card-border-radius);
+        padding: var(--form-padding);
+        margin-top: 20px;
+        border: 2px solid var(--forest-green);
+        display: none;
+        animation: slideDown var(--transition-speed) ease;
+    }
+    
+    .booking-form-container.active {
+        display: block;
+    }
+    
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Form inputs with consistent styling */
+    .booking-form-container input,
+    .booking-form-container select,
+    .booking-form-container textarea {
+        border: 2px solid #dee2e6;
+        border-radius: 8px;
+        padding: 14px;
+        font-size: 1.05rem;
+        transition: all var(--transition-speed) ease;
+        width: 100%;
+        margin-bottom: 15px;
+    }
+    
+    .booking-form-container input:focus,
+    .booking-form-container select:focus,
+    .booking-form-container textarea:focus {
+        border-color: var(--forest-green);
+        box-shadow: 0 0 0 0.2rem rgba(45, 80, 22, 0.15);
+        outline: none;
+    }
+
+    /* Form labels */
+    .form-step-label {
+        font-weight: 600;
+        color: var(--navy);
+        margin-bottom: 12px;
+        margin-top: 15px;
+        display: block;
+        font-size: 1.15rem;
+    }
+    
+    .required-star {
+        color: #dc3545;
+        margin-left: 3px;
+    }
+
+    /* ============================================
+       MEAT CALCULATOR SPECIFIC STYLES
+    ============================================ */
+    .animal-quantity-group {
+        background: white;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 12px;
+        border: 2px solid #e9ecef;
+        transition: border-color var(--transition-speed) ease;
+    }
+    
+    .animal-quantity-group:hover {
+        border-color: var(--forest-green-light);
+    }
+    
+    .animal-quantity-group label {
+        font-weight: 500;
+        color: var(--text-dark);
+        margin-bottom: 8px;
+        display: block;
+        font-size: 1.05rem;
+    }
+    
+    .animal-quantity-group input {
+        font-size: 1.2rem;
+        text-align: center;
+        height: 50px;
+    }
+
+    /* Live total display */
+    .live-total-display {
+        background: linear-gradient(135deg, #d1ecf1, #bee5eb);
+        border: 2px solid #17a2b8;
+        border-radius: 12px;
+        padding: 20px;
+        text-align: center;
+        margin: 20px 0;
+    }
+    
+    .live-total-display .total-amount {
+        font-size: 2.2rem;
+        font-weight: bold;
+        color: var(--navy);
+    }
+
+    /* ============================================
+       BUTTONS
+    ============================================ */
+    .btn-toggle-booking {
+        background: var(--navy);
+        color: white;
+        border: none;
+        padding: 14px;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all var(--transition-speed) ease;
+        width: 100%;
+        font-size: 1.05rem;
+        cursor: pointer;
+    }
+    
+    .btn-toggle-booking:hover {
+        background: var(--navy-dark);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(26, 58, 82, 0.3);
+    }
+    
+    .btn-submit-booking {
+        background: var(--forest-green);
+        color: white;
+        border: none;
+        padding: 16px;
+        border-radius: 10px;
+        font-weight: bold;
+        font-size: 1.15rem;
+        transition: all var(--transition-speed) ease;
+        width: 100%;
+        cursor: pointer;
+    }
+    
+    .btn-submit-booking:hover {
+        background: var(--forest-green-dark);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(45, 80, 22, 0.4);
+    }
+
+    /* ============================================
+       INFO ALERTS
+    ============================================ */
+    .info-note {
+        background: #d4edda;
+        border: 1px solid #c3e6cb;
+        border-radius: 8px;
+        padding: 15px;
+        margin-top: 20px;
+        font-size: 0.95rem;
+        color: #155724;
+    }
+
+    /* ============================================
+       MOBILE RESPONSIVE DESIGN
+    ============================================ */
+    @media (max-width: 768px) {
+        /* Hero adjustments */
+        .services-hero {
+            padding: 30px 0;
+        }
+        
+        .services-hero h1 {
+            font-size: 1.75rem;
+        }
+        
+        .services-hero .lead {
+            font-size: 1rem;
+        }
+
+        /* Section headers */
+        .section-header {
+            font-size: 1.4rem;
+        }
+        
+        .section-header i {
+            font-size: 1.4rem;
+        }
+
+        /* Image containers - maintain aspect ratio */
+        .img-container {
+            padding-bottom: 65%; /* Slightly taller on mobile */
+            margin-bottom: 12px;
+        }
+
+        /* Full-screen mobile forms */
+        .booking-form-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 1050;
+            border-radius: 0;
+            margin: 0;
+            padding: var(--mobile-form-padding);
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            animation: slideInUp var(--transition-speed) ease;
+        }
+        
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(100%);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Close button for mobile */
+        .close-form-btn {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            font-size: 1.3rem;
+            cursor: pointer;
+            z-index: 1051;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        /* Larger touch targets on mobile */
+        .booking-form-container input,
+        .booking-form-container select,
+        .booking-form-container textarea {
+            font-size: 1.1rem;
+            padding: 16px;
+            min-height: 50px;
+        }
+        
+        .form-step-label {
+            font-size: 1.2rem;
+            margin-top: 20px;
+        }
+        
+        .animal-quantity-group input {
+            font-size: 1.3rem;
+            height: 55px;
+        }
+        
+        .btn-toggle-booking,
+        .btn-submit-booking {
+            padding: 16px;
+            font-size: 1.15rem;
+            min-height: 55px;
+        }
+
+        /* Card spacing */
+        .service-card {
+            margin-bottom: 20px;
+        }
+
+        /* Price badges */
+        .price-badge {
+            font-size: 1rem;
+            padding: 7px 15px;
+        }
+    }
+
+    /* Tablet optimizations */
+    @media (min-width: 769px) and (max-width: 992px) {
+        .img-container {
+            padding-bottom: 62%;
+        }
+        
+        .booking-form-container {
+            padding: 20px;
+        }
+    }
+
+    /* Hide close button on desktop */
+    @media (min-width: 769px) {
+        .close-form-btn {
+            display: none;
+        }
+    }
+
+    /* ============================================
+       UTILITY CLASSES
+    ============================================ */
+    .text-navy {
+        color: var(--navy);
+    }
+    
+    /* Smooth scrolling */
+    html {
+        scroll-behavior: smooth;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ============ HERO BANNER ============ -->
+<section class="services-hero">
+    <div class="container text-center">
+        <h1 class="display-4 fw-bold mb-3">
+            <span class="english-text">Our Professional Services</span>
+            <span class="xhosa-text">Iinkonzo Zethu Zobugcisa</span>
+        </h1>
+        <p class="lead mb-0">
+            <span class="english-text">Quality, Reliable, and Professional Services for the Eastern Cape Community</span>
+            <span class="xhosa-text">Iinkonzo Ezisemgangathweni, Ezithembekileyo, Nezobugcali Kuluntu LweMpuma Koloni</span>
+        </p>
+    </div>
+</section>
+
+<div class="container pb-5">
+
+    <!-- ============ MEAT CUTTING SERVICES ============ -->
+    {% if categories.get('Meat') %}
+    <div class="section-header">
+        <i class="bi bi-scissors text-danger"></i>
+        <h2 class="fw-bold mb-0">
+            <span class="english-text">Professional Meat Cutting</span>
+            <span class="xhosa-text">Ukusika Inyama Ngobugcisa</span>
+        </h2>
+    </div>
+
+    <div class="row g-4 mb-5">
+        <div class="col-lg-8 mx-auto">
+            <div class="service-card p-4">
+                <div class="img-container">
+                    <img src="/static/images/meat.jpg" alt="Professional Meat Cutting" loading="lazy">
+                </div>
+                
+                <h4 class="fw-bold text-navy mb-3">
+                    <span class="english-text">🔪 Meat Cutting Service</span>
+                    <span class="xhosa-text">🔪 Inkonzo Yokusika Inyama</span>
+                </h4>
+                
+                <p class="text-muted mb-3">
+                    <span class="english-text">
+                        Professional meat processing with modern equipment for all your events and celebrations. 
+                        We handle cows, sheep, and pigs with care and expertise.
+                    </span>
+                    <span class="xhosa-text">
+                        Ukuqhawula inyama ngobuchule ngesixhobo sanamhlanje kuzo zonke iimicimbi nemibhiyozo yakho.
+                        Silawula iinkomo, iigusha, neehagu ngokukhathalela nobuchule.
+                    </span>
+                </p>
+                
+                <div class="d-flex flex-wrap gap-2 mb-3">
+                    <span class="price-badge">🐄 Cow: R850</span>
+                    <span class="price-badge">🐑 Sheep: R200</span>
+                    <span class="price-badge">🐖 Pig: R250</span>
+                </div>
+                
+                <button class="btn-toggle-booking" onclick="toggleForm('meat-booking-form')">
+                    <i class="bi bi-calendar-check me-2"></i>
+                    <span class="english-text">Book Meat Cutting Service</span>
+                    <span class="xhosa-text">Bhukisha Inkonzo Yokusika Inyama</span>
+                </button>
+                
+                <!-- MEAT BOOKING FORM -->
+                <div id="meat-booking-form" class="booking-form-container">
+                    <button class="close-form-btn" onclick="toggleForm('meat-booking-form')">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                    
+                    <form method="POST" action="{{ url_for('booking_step1', service_id=categories['Meat'][0].id) }}" id="meatBookingForm">
+                        <h5 class="fw-bold text-navy mb-4">
+                            <i class="bi bi-clipboard-check me-2"></i>
+                            <span class="english-text">Complete Your Booking</span>
+                            <span class="xhosa-text">Gqibezela Ukubhukisha Kwakho</span>
+                        </h5>
+                        
+                        <!-- Animal Selection -->
+                        <label class="form-step-label">
+                            <span class="english-text">📋 Step 1: Select Quantities</span>
+                            <span class="xhosa-text">📋 Inyathelo 1: Khetha Ubungakanani</span>
+                        </label>
+                        
+                        <div class="animal-quantity-group">
+                            <label>
+                                <span class="english-text">🐄 Cows (R850 each)</span>
+                                <span class="xhosa-text">🐄 Iinkomo (R850 nganye)</span>
+                            </label>
+                            <input type="number" class="form-control meat-quantity" name="cow_qty" id="cow-qty" min="0" value="0" onchange="calculateMeatTotal()">
+                        </div>
+                        
+                        <div class="animal-quantity-group">
+                            <label>
+                                <span class="english-text">🐑 Sheep (R200 each)</span>
+                                <span class="xhosa-text">🐑 Iigusha (R200 nganye)</span>
+                            </label>
+                            <input type="number" class="form-control meat-quantity" name="sheep_qty" id="sheep-qty" min="0" value="0" onchange="calculateMeatTotal()">
+                        </div>
+                        
+                        <div class="animal-quantity-group">
+                            <label>
+                                <span class="english-text">🐖 Pigs (R250 each)</span>
+                                <span class="xhosa-text">🐖 Iihagu (R250 nganye)</span>
+                            </label>
+                            <input type="number" class="form-control meat-quantity" name="pig_qty" id="pig-qty" min="0" value="0" onchange="calculateMeatTotal()">
+                        </div>
+                        
+                        <!-- Live Total -->
+                        <div class="live-total-display">
+                            <div class="text-muted small mb-1">
+                                <span class="english-text">Estimated Total</span>
+                                <span class="xhosa-text">Ixabiso Eliqikelelweyo</span>
+                            </div>
+                            <div class="total-amount" id="meat-total">R0</div>
+                        </div>
+                        
+                        <!-- Date & Location -->
+                        <label class="form-step-label">
+                            <span class="english-text">📅 Step 2: Date & Location</span>
+                            <span class="xhosa-text">📅 Inyathelo 2: Umhla Nendawo</span>
+                            <span class="required-star">*</span>
+                        </label>
+                        
+                        <input type="date" name="service_date" class="form-control" required min="{{ today }}">
+                        <textarea name="location" class="form-control" rows="2" placeholder="Enter your address, farm name, or area | Faka idilesi yakho, igama lefama, okanye indawo" required></textarea>
+                        
+                        <!-- Contact Details -->
+                        <label class="form-step-label">
+                            <span class="english-text">👤 Step 3: Your Contact Details</span>
+                            <span class="xhosa-text">👤 Inyathelo 3: Iinkcukacha Zoqhagamshelana Nawe</span>
+                            <span class="required-star">*</span>
+                        </label>
+                        
+                        <input type="text" name="customer_name" class="form-control" placeholder="Full Name | Igama Elipheleleyo" required>
+                        <input type="tel" name="customer_phone" class="form-control" placeholder="Phone Number | Inombolo Yomnxeba (e.g., 078 123 4567)" required pattern="[0-9]{10,15}">
+                        <input type="email" name="customer_email" class="form-control" placeholder="Email Address (Optional) | I-imeyili (Ayinyanzelisiyo)">
+                        <textarea name="additional_notes" class="form-control" rows="2" placeholder="Any special requests or notes | Naziphi na izicelo okanye amanqaku akhethekileyo"></textarea>
+                        
+                        <!-- Hidden fields -->
+                        <input type="hidden" name="quantity" id="meat-total-qty" value="0">
+                        <input type="hidden" name="estimated_cost" id="meat-total-cost" value="0">
+                        
+                        <div class="info-note">
+                            <i class="bi bi-info-circle me-2"></i>
+                            <span class="english-text">
+                                <strong>What happens next:</strong> Your booking will be sent via email. We will contact you soon to confirm availability.
+                            </span>
+                            <span class="xhosa-text">
+                                <strong>Kwenzeka ntoni emva koko:</strong> Ukubhukisha kwakho kuya kuthunyelwa nge-imeyili. Siza kuqhagamshelana nawe kungekudala ukuqinisekisa ukufumaneka.
+                            </span>
+                        </div>
+                        
+                        <button type="submit" class="btn-submit-booking mt-3" onclick="return validateMeatBooking()">
+                            <i class="bi bi-check-circle me-2"></i>
+                            <span class="english-text">Confirm & Send Booking</span>
+                            <span class="xhosa-text">Qinisekisa Uze Uthumele Ukubhukisha</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- ============ EQUIPMENT HIRING SERVICES ============ -->
+    {% if categories.get('Hiring') %}
+    <div class="section-header">
+        <i class="bi bi-truck text-primary"></i>
+        <h2 class="fw-bold mb-0">
+            <span class="english-text">Equipment Hiring</span>
+            <span class="xhosa-text">Ukuqasha Izixhobo</span>
+        </h2>
+    </div>
+
+    <div class="row g-4 mb-5">
+        {% for service in categories['Hiring'] %}
+        <div class="col-lg-6">
+            <div class="service-card p-4">
+                <div class="img-container">
+                    {% if "Fridge" in service.name %}
+                        <img src="/static/images/fridge.jpg" alt="{{ service.name }}" loading="lazy">
+                    {% elif "Trailer" in service.name %}
+                        <img src="/static/images/trailer.jpg" alt="{{ service.name }}" loading="lazy">
+                    {% else %}
+                        <img src="{{ service.image_url }}" alt="{{ service.name }}" loading="lazy">
+                    {% endif %}
+                </div>
+                
+                <h4 class="fw-bold text-navy mb-3">
+                    <span class="english-text">{{ service.name }}</span>
+                    <span class="xhosa-text">{{ service.name_xh }}</span>
+                </h4>
+                
+                <p class="text-muted mb-3">
+                    <span class="english-text">{{ service.description }}</span>
+                    <span class="xhosa-text">{{ service.description_xh }}</span>
+                </p>
+                
+                <span class="price-badge">R{{ "%.0f"|format(service.price) }} {{ service.unit }}</span>
+                
+                <button class="btn-toggle-booking mt-3" onclick="toggleForm('hire-{{ service.id }}-form')">
+                    <i class="bi bi-calendar-check me-2"></i>
+                    <span class="english-text">Book This Service</span>
+                    <span class="xhosa-text">Bhukisha Le Nkonzo</span>
+                </button>
+                
+                <!-- HIRING BOOKING FORM -->
+                <div id="hire-{{ service.id }}-form" class="booking-form-container">
+                    <button class="close-form-btn" onclick="toggleForm('hire-{{ service.id }}-form')">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                    
+                    <form method="POST" action="{{ url_for('booking_step1', service_id=service.id) }}">
+                        <h5 class="fw-bold text-navy mb-4">
+                            <i class="bi bi-clipboard-check me-2"></i>
+                            <span class="english-text">Complete Your Booking</span>
+                            <span class="xhosa-text">Gqibezela Ukubhukisha Kwakho</span>
+                        </h5>
+                        
+                        <label class="form-step-label">
+                            <span class="english-text">📅 Date & Location</span>
+                            <span class="xhosa-text">📅 Umhla Nendawo</span>
+                            <span class="required-star">*</span>
+                        </label>
+                        
+                        <input type="date" name="service_date" class="form-control" required min="{{ today }}">
+                        <textarea name="location" class="form-control" rows="2" placeholder="Event location or delivery address | Indawo yomcimbi okanye idilesi yokuhanjiswa" required></textarea>
+                        
+                        <label class="form-step-label">
+                            <span class="english-text">👤 Your Contact Details</span>
+                            <span class="xhosa-text">👤 Iinkcukacha Zoqhagamshelana Nawe</span>
+                            <span class="required-star">*</span>
+                        </label>
+                        
+                        <input type="text" name="customer_name" class="form-control" placeholder="Full Name | Igama Elipheleleyo" required>
+                        <input type="tel" name="customer_phone" class="form-control" placeholder="Phone Number | Inombolo Yomnxeba" required pattern="[0-9]{10,15}">
+                        <input type="email" name="customer_email" class="form-control" placeholder="Email Address (Optional) | I-imeyili (Ayinyanzelisiyo)">
+                        <textarea name="additional_notes" class="form-control" rows="2" placeholder="Any special requests | Naziphi na izicelo"></textarea>
+                        
+                        <div class="info-note">
+                            <i class="bi bi-info-circle me-2"></i>
+                            <span class="english-text">Your booking will be sent via email. We will contact you soon to confirm.</span>
+                            <span class="xhosa-text">Ukubhukisha kwakho kuya kuthunyelwa nge-imeyili. Siza kuqhagamshelana nawe kungekudala ukuqinisekisa.</span>
+                        </div>
+                        
+                        <button type="submit" class="btn-submit-booking mt-3">
+                            <i class="bi bi-check-circle me-2"></i>
+                            <span class="english-text">Confirm Booking</span>
+                            <span class="xhosa-text">Qinisekisa Ukubhukisha</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- ============ LABOR SERVICES ============ -->
+    {% if categories.get('Labor') %}
+    <div class="section-header">
+        <i class="bi bi-tree text-success"></i>
+        <h2 class="fw-bold mb-0">
+            <span class="english-text">Garden & Property Services</span>
+            <span class="xhosa-text">Iinkonzo Zegadi Nepropati</span>
+        </h2>
+    </div>
+
+    <div class="row g-4 mb-5">
+        {% for service in categories['Labor'] %}
+        <div class="col-lg-4 col-md-6">
+            <div class="service-card p-4">
+                <div class="img-container">
+                    {% if "Grass" in service.name %}
+                        <img src="/static/images/grass.jpg" alt="{{ service.name }}" loading="lazy">
+                    {% elif "Tree" in service.name %}
+                        <img src="/static/images/tree.jpg" alt="{{ service.name }}" loading="lazy">
+                    {% elif "Site" in service.name %}
+                        <img src="/static/images/site.jpg" alt="{{ service.name }}" loading="lazy">
+                    {% else %}
+                        <img src="{{ service.image_url }}" alt="{{ service.name }}" loading="lazy">
+                    {% endif %}
+                </div>
+                
+                <h5 class="fw-bold text-navy mb-3">
+                    <span class="english-text">{{ service.name }}</span>
+                    <span class="xhosa-text">{{ service.name_xh }}</span>
+                </h5>
+                
+                <p class="text-muted small mb-3">
+                    <span class="english-text">{{ service.description }}</span>
+                    <span class="xhosa-text">{{ service.description_xh }}</span>
+                </p>
+                
+                <span class="price-badge secondary">
+                    <span class="english-text">Contact for Quote</span>
+                    <span class="xhosa-text">Qhagamshelana Ufumane Ixabiso</span>
+                </span>
+                
+                <button class="btn-toggle-booking mt-3" onclick="toggleForm('labor-{{ service.id }}-form')">
+                    <i class="bi bi-chat-dots me-2"></i>
+                    <span class="english-text">Request Quote</span>
+                    <span class="xhosa-text">Cela Ixabiso</span>
+                </button>
+                
+                <!-- LABOR QUOTE FORM -->
+                <div id="labor-{{ service.id }}-form" class="booking-form-container">
+                    <button class="close-form-btn" onclick="toggleForm('labor-{{ service.id }}-form')">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                    
+                    <form method="POST" action="{{ url_for('booking_step1', service_id=service.id) }}">
+                        <h5 class="fw-bold text-navy mb-4">
+                            <i class="bi bi-clipboard-check me-2"></i>
+                            <span class="english-text">Request a Quote</span>
+                            <span class="xhosa-text">Cela Ixabiso</span>
+                        </h5>
+                        
+                        <label class="form-step-label">
+                            <span class="english-text">📅 Preferred Date & Location</span>
+                            <span class="xhosa-text">📅 Umhla Okhethiweyo Nendawo</span>
+                        </label>
+                        
+                        <input type="date" name="service_date" class="form-control" required min="{{ today }}">
+                        <textarea name="location" class="form-control" rows="2" placeholder="Property location | Indawo yepropati" required></textarea>
+                        
+                        <label class="form-step-label">
+                            <span class="english-text">📝 Project Details</span>
+                            <span class="xhosa-text">📝 Iinkcukacha Zeprojekthi</span>
+                        </label>
+                        
+                        <textarea name="additional_notes" class="form-control" rows="3" placeholder="Tell us about your project (size, scope, special requirements) | Sixelele ngeprojekthi yakho (ubungakanani, umda, iimfuno ezikhethekileyo)" required></textarea>
+                        
+                        <label class="form-step-label">
+                            <span class="english-text">👤 Your Contact Details</span>
+                            <span class="xhosa-text">👤 Iinkcukacha Zoqhagamshelana Nawe</span>
+                            <span class="required-star">*</span>
+                        </label>
+                        
+                        <input type="text" name="customer_name" class="form-control" placeholder="Full Name | Igama Elipheleleyo" required>
+                        <input type="tel" name="customer_phone" class="form-control" placeholder="Phone Number | Inombolo Yomnxeba" required pattern="[0-9]{10,15}">
+                        <input type="email" name="customer_email" class="form-control" placeholder="Email Address (Optional) | I-imeyili (Ayinyanzelisiyo)">
+                        
+                        <div class="info-note">
+                            <i class="bi bi-info-circle me-2"></i>
+                            <span class="english-text">We will review your request and provide a custom quote soon.</span>
+                            <span class="xhosa-text">Siza kuhlola isicelo sakho size sinikeze ixabiso elikhethekileyo kungekudala.</span>
+                        </div>
+                        
+                        <button type="submit" class="btn-submit-booking mt-3">
+                            <i class="bi bi-send me-2"></i>
+                            <span class="english-text">Send Request</span>
+                            <span class="xhosa-text">Thumela Isicelo</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- ============ CONSTRUCTION & TRADING ============ -->
+    {% if categories.get('Construction') or categories.get('Trading') %}
+    <div class="section-header">
+        <i class="bi bi-hammer text-warning"></i>
+        <h2 class="fw-bold mb-0">
+            <span class="english-text">Construction & Trading</span>
+            <span class="xhosa-text">Ukwakha Norhwebo</span>
+        </h2>
+    </div>
+
+    <div class="row g-4 mb-5">
+        {% for service in (categories.get('Construction', []) + categories.get('Trading', [])) %}
+        <div class="col-lg-6">
+            <div class="service-card p-4">
+                <div class="img-container">
+                    {% if "Construction" in service.name or service.category == 'Construction' %}
+                        <img src="/static/images/construction.jpg" alt="{{ service.name }}" loading="lazy">
+                    {% elif "Trading" in service.name or service.category == 'Trading' %}
+                        <!-- General Trading - No image, use placeholder -->
+                        <div class="img-placeholder">
+                            <i class="bi bi-shop"></i>
+                            <span>
+                                <span class="english-text">General Trading</span>
+                                <span class="xhosa-text">Urhwebo Ngokubanzi</span>
+                            </span>
+                        </div>
+                    {% else %}
+                        <img src="{{ service.image_url }}" alt="{{ service.name }}" loading="lazy">
+                    {% endif %}
+                </div>
+                
+                <h4 class="fw-bold text-navy mb-3">
+                    <span class="english-text">{{ service.name }}</span>
+                    <span class="xhosa-text">{{ service.name_xh }}</span>
+                </h4>
+                
+                <p class="text-muted mb-3">
+                    <span class="english-text">{{ service.description }}</span>
+                    <span class="xhosa-text">{{ service.description_xh }}</span>
+                </p>
+                
+                <span class="price-badge secondary">
+                    <span class="english-text">Contact for Quote</span>
+                    <span class="xhosa-text">Qhagamshelana Ufumane Ixabiso</span>
+                </span>
+                
+                <button class="btn-toggle-booking mt-3" onclick="toggleForm('const-{{ service.id }}-form')">
+                    <i class="bi bi-chat-dots me-2"></i>
+                    <span class="english-text">Request Quote</span>
+                    <span class="xhosa-text">Cela Ixabiso</span>
+                </button>
+                
+                <!-- CONSTRUCTION/TRADING QUOTE FORM -->
+                <div id="const-{{ service.id }}-form" class="booking-form-container">
+                    <button class="close-form-btn" onclick="toggleForm('const-{{ service.id }}-form')">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                    
+                    <form method="POST" action="{{ url_for('booking_step1', service_id=service.id) }}">
+                        <h5 class="fw-bold text-navy mb-4">
+                            <i class="bi bi-clipboard-check me-2"></i>
+                            <span class="english-text">Request a Quote</span>
+                            <span class="xhosa-text">Cela Ixabiso</span>
+                        </h5>
+                        
+                        <label class="form-step-label">
+                            <span class="english-text">📍 Project Location</span>
+                            <span class="xhosa-text">📍 Indawo Yeprojekthi</span>
+                            <span class="required-star">*</span>
+                        </label>
+                        
+                        <textarea name="location" class="form-control" rows="2" placeholder="Project location or site address | Indawo yeprojekthi okanye idilesi yesiza" required></textarea>
+                        
+                        <label class="form-step-label">
+                            <span class="english-text">📋 Project Description</span>
+                            <span class="xhosa-text">📋 Inkcazo Yeprojekthi</span>
+                            <span class="required-star">*</span>
+                        </label>
+                        
+                        <textarea name="additional_notes" class="form-control" rows="4" placeholder="Describe your project in detail (what you need, timeline, budget range) | Chaza iprojekthi yakho ngokweenkcukacha (into oyifunayo, ixesha, uluhlu lweebhajethi)" required></textarea>
+                        
+                        <label class="form-step-label">
+                            <span class="english-text">📅 Target Start Date (Optional)</span>
+                            <span class="xhosa-text">📅 Umhla Wokuqala Ojoliswe Kuwo (Ayinyanzelisiyo)</span>
+                        </label>
+                        
+                        <input type="date" name="service_date" class="form-control" min="{{ today }}">
+                        
+                        <label class="form-step-label">
+                            <span class="english-text">👤 Your Contact Details</span>
+                            <span class="xhosa-text">👤 Iinkcukacha Zoqhagamshelana Nawe</span>
+                            <span class="required-star">*</span>
+                        </label>
+                        
+                        <input type="text" name="customer_name" class="form-control" placeholder="Full Name | Igama Elipheleleyo" required>
+                        <input type="tel" name="customer_phone" class="form-control" placeholder="Phone Number | Inombolo Yomnxeba" required pattern="[0-9]{10,15}">
+                        <input type="email" name="customer_email" class="form-control" placeholder="Email Address (Optional) | I-imeyili (Ayinyanzelisiyo)">
+                        
+                        <div class="info-note">
+                            <i class="bi bi-info-circle me-2"></i>
+                            <span class="english-text">We will review your project and provide a detailed quote soon.</span>
+                            <span class="xhosa-text">Siza kuhlola iprojekthi yakho size sinikeze ixabiso elineenkcukacha kungekudala.</span>
+                        </div>
+                        
+                        <button type="submit" class="btn-submit-booking mt-3">
+                            <i class="bi bi-send me-2"></i>
+                            <span class="english-text">Send Request</span>
+                            <span class="xhosa-text">Thumela Isicelo</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // ============================================
+    // CONFIGURATION
+    // ============================================
+    const PRICES = {
+        cow: 850,
+        sheep: 200,
+        pig: 250
+    };
+
+    // ============================================
+    // INITIALIZATION
+    // ============================================
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeDateInputs();
+        initializeMeatCalculator();
+        initializeFormHandlers();
+        initializeKeyboardShortcuts();
+    });
+
+    // ============================================
+    // DATE HANDLING
+    // ============================================
+    function initializeDateInputs() {
+        const today = new Date().toISOString().split('T')[0];
+        document.querySelectorAll('input[type="date"]').forEach(input => {
+            input.min = today;
+        });
+    }
+
+    // ============================================
+    // FORM TOGGLE FUNCTIONALITY
+    // ============================================
+    function toggleForm(formId) {
+        const form = document.getElementById(formId);
+        const allForms = document.querySelectorAll('.booking-form-container');
+        
+        // Close all other forms
+        allForms.forEach(f => {
+            if (f.id !== formId) {
+                f.classList.remove('active');
+            }
+        });
+        
+        // Toggle current form
+        const isOpening = !form.classList.contains('active');
+        form.classList.toggle('active');
+        
+        // Handle body scroll on mobile
+        if (window.innerWidth < 768) {
+            document.body.style.overflow = isOpening ? 'hidden' : 'auto';
+        }
+        
+        // Scroll to form on desktop
+        if (isOpening && window.innerWidth >= 768) {
+            setTimeout(() => {
+                form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 100);
+        }
+    }
+
+    // ============================================
+    // MEAT CALCULATOR
+    // ============================================
+    function initializeMeatCalculator() {
+        calculateMeatTotal();
+        
+        document.querySelectorAll('.meat-quantity').forEach(input => {
+            input.addEventListener('input', calculateMeatTotal);
+        });
+    }
+
+    function calculateMeatTotal() {
+        const cowQty = parseInt(document.getElementById('cow-qty')?.value) || 0;
+        const sheepQty = parseInt(document.getElementById('sheep-qty')?.value) || 0;
+        const pigQty = parseInt(document.getElementById('pig-qty')?.value) || 0;
+        
+        const total = (cowQty * PRICES.cow) + (sheepQty * PRICES.sheep) + (pigQty * PRICES.pig);
+        const totalQty = cowQty + sheepQty + pigQty;
+        
+        // Update display
+        const displayElement = document.getElementById('meat-total');
+        if (displayElement) {
+            displayElement.textContent = 'R' + total.toLocaleString();
+        }
+        
+        // Update hidden fields
+        const qtyField = document.getElementById('meat-total-qty');
+        const costField = document.getElementById('meat-total-cost');
+        if (qtyField) qtyField.value = totalQty;
+        if (costField) costField.value = total;
+    }
+
+    function validateMeatBooking() {
+        const totalQty = parseInt(document.getElementById('meat-total-qty')?.value) || 0;
+        
+        if (totalQty === 0) {
+            alert('Please select at least one animal before booking.\n\nNceda ukhethe ubuncinci silwanye ngaphambi kokubhukisha.');
+            return false;
+        }
+        
+        return true;
+    }
+
+    // ============================================
+    // FORM HANDLERS
+    // ============================================
+    function initializeFormHandlers() {
+        // Close form when clicking outside on mobile
+        document.addEventListener('click', function(e) {
+            if (window.innerWidth < 768) {
+                const activeForm = document.querySelector('.booking-form-container.active');
+                
+                if (activeForm && 
+                    !activeForm.contains(e.target) && 
+                    !e.target.classList.contains('btn-toggle-booking') &&
+                    !e.target.closest('.btn-toggle-booking')) {
+                    activeForm.classList.remove('active');
+                    document.body.style.overflow = 'auto';
+                }
+            }
+        });
+    }
+
+    // ============================================
+    // KEYBOARD SHORTCUTS
+    // ============================================
+    function initializeKeyboardShortcuts() {
+        document.addEventListener('keydown', function(e) {
+            // Close forms with Escape key
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.booking-form-container.active').forEach(form => {
+                    form.classList.remove('active');
+                    document.body.style.overflow = 'auto';
+                });
+            }
+        });
+    }
+
+    // Make toggleForm available globally for onclick handlers
+    window.toggleForm = toggleForm;
+    window.calculateMeatTotal = calculateMeatTotal;
+    window.validateMeatBooking = validateMeatBooking;
+</script>
+{% endblock %}

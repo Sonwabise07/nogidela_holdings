@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Nogidela Holdings - Professional services in Eastern Cape. Grass cutting, meat processing, equipment hiring, construction & more.">
+    <meta name="keywords" content="Nogidela Holdings, Eastern Cape services, grass cutting, meat cutting, equipment hiring, construction">
+    <title>{% block title %}Nogidela Holdings | Professional Services{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <style>
+        /* ============ ROOT VARIABLES ============ */
+        :root {
+            --navy: #1a3a52;
+            --navy-dark: #0f2537;
+            --navy-light: #2a4a62;
+            --forest-green: #2d5016;
+            --forest-green-light: #3d6b22;
+            --forest-green-dark: #1d3010;
+            --accent-white: #f8f9fa;
+            --text-dark: #212529;
+            --text-muted: #6c757d;
+        }
+        
+        /* ============ GLOBAL STYLES ============ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body { 
+            background-color: var(--accent-white); 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        /* ============ UTILITY CLASSES ============ */
+        .bg-navy { background-color: var(--navy) !important; }
+        .bg-navy-dark { background-color: var(--navy-dark) !important; }
+        .text-navy { color: var(--navy) !important; }
+        .btn-navy { 
+            background-color: var(--navy); 
+            color: white; 
+            border: none;
+        }
+        .btn-navy:hover { 
+            background-color: var(--navy-dark); 
+            color: white;
+        }
+        .btn-outline-navy {
+            border: 2px solid var(--navy);
+            color: var(--navy);
+        }
+        .btn-outline-navy:hover {
+            background-color: var(--navy);
+            color: white;
+        }
+
+        .bg-forest-green { background-color: var(--forest-green) !important; }
+        .bg-forest-green-light { background-color: var(--forest-green-light) !important; }
+        .text-forest-green { color: var(--forest-green) !important; }
+        .btn-forest-green { 
+            background-color: var(--forest-green); 
+            color: white;
+            border: none;
+        }
+        .btn-forest-green:hover { 
+            background-color: var(--forest-green-dark); 
+            color: white;
+        }
+
+        /* ============ NAVIGATION ============ */
+        .navbar { 
+            background-color: var(--navy); 
+            border-bottom: 3px solid var(--forest-green);
+            padding: 1rem 0;
+        }
+
+        .navbar-brand {
+            font-size: 1.1rem;
+            letter-spacing: 0.5px;
+        }
+
+        .logo-circle {
+            width: 45px;
+            height: 45px;
+            background: var(--forest-green);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid white;
+            font-weight: bold;
+            transition: transform 0.3s ease;
+        }
+
+        .logo-circle:hover {
+            transform: scale(1.1);
+        }
+
+        .nav-link {
+            font-size: 1rem;
+            padding: 0.5rem 1rem !important;
+            transition: color 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--forest-green-light) !important;
+        }
+
+        .nav-link.active {
+            color: var(--forest-green-light) !important;
+            font-weight: 500;
+        }
+
+        /* ============ LANGUAGE TOGGLE ============ */
+        .xhosa-text { display: none; }
+        body.lang-active-xhosa .xhosa-text { display: inline; }
+        body.lang-active-xhosa .english-text { display: none; }
+
+        .btn-language {
+            font-size: 0.9rem;
+            padding: 0.4rem 0.8rem;
+        }
+
+        /* ============ FLASH MESSAGES ============ */
+        .alert {
+            border-radius: 10px;
+            border: none;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .alert-dismissible .btn-close {
+            padding: 1rem;
+        }
+
+        /* ============ CARDS & COMPONENTS ============ */
+        .card {
+            border-radius: 15px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+
+        .service-card {
+            border: 2px solid transparent;
+        }
+
+        .service-card:hover {
+            border-color: var(--forest-green);
+        }
+
+        /* ============ BUTTONS ============ */
+        .btn {
+            border-radius: 8px;
+            padding: 0.6rem 1.5rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-lg {
+            padding: 0.8rem 2rem;
+            font-size: 1.1rem;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        /* ============ WHATSAPP FLOAT BUTTON ============ */
+        .whatsapp-float {
+            position: fixed;
+            width: 60px;
+            height: 60px;
+            bottom: 25px;
+            right: 25px;
+            background-color: #25D366;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            font-size: 30px;
+            box-shadow: 2px 2px 15px rgba(0,0,0,0.3);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .whatsapp-float:hover {
+            background-color: #128C7E;
+            color: white;
+            transform: scale(1.1);
+            box-shadow: 2px 2px 20px rgba(0,0,0,0.4);
+        }
+
+        /* ============ FOOTER ============ */
+        footer {
+            background: linear-gradient(135deg, var(--navy), var(--navy-dark));
+            color: white;
+        }
+
+        footer h5 {
+            color: var(--forest-green-light);
+            margin-bottom: 1rem;
+        }
+
+        footer a {
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        footer a:hover {
+            color: var(--forest-green-light);
+        }
+
+        /* ============ RESPONSIVE ============ */
+        @media (max-width: 768px) {
+            .navbar-brand {
+                font-size: 0.95rem;
+            }
+
+            .logo-circle {
+                width: 38px;
+                height: 38px;
+            }
+
+            .btn-lg {
+                padding: 0.6rem 1.5rem;
+                font-size: 1rem;
+            }
+
+            .whatsapp-float {
+                width: 55px;
+                height: 55px;
+                bottom: 20px;
+                right: 20px;
+                font-size: 26px;
+            }
+        }
+
+        /* ============ ANIMATIONS ============ */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        /* ============ LOADING SPINNER (Optional) ============ */
+        .spinner-border-sm {
+            width: 1rem;
+            height: 1rem;
+            border-width: 0.2em;
+        }
+    </style>
+
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="d-flex flex-column min-vh-100">
+
+    <!-- ============ NAVIGATION ============ -->
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top shadow-sm">
+        <div class="container">
+            <!-- Logo & Brand -->
+            <a class="navbar-brand fw-bold d-flex align-items-center" href="/">
+                <div class="logo-circle me-2">
+                    <span style="color: white; font-size: 0.95rem;">NH</span>
+                </div>
+                <span class="english-text">NOGIDELA HOLDINGS</span>
+                <span class="xhosa-text">I-NOGIDELA HOLDINGS</span>
+            </a>
+            
+            <!-- Mobile Toggle -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <!-- Navigation Links -->
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-lg-center">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'home' %}active{% endif %}" href="/">
+                            <i class="bi bi-house-door me-1"></i>
+                            <span class="english-text">Home</span>
+                            <span class="xhosa-text">Ikhaya</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'services' %}active{% endif %}" href="{{ url_for('services') }}">
+                            <i class="bi bi-grid-3x3-gap me-1"></i>
+                            <span class="english-text">Services</span>
+                            <span class="xhosa-text">Iinkonzo</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'contact' %}active{% endif %}" href="{{ url_for('contact') }}">
+                            <i class="bi bi-envelope me-1"></i>
+                            <span class="english-text">Contact</span>
+                            <span class="xhosa-text">Qhagamshelana</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'about' %}active{% endif %}" href="{{ url_for('about') }}">
+                            <i class="bi bi-info-circle me-1"></i>
+                            <span class="english-text">About</span>
+                            <span class="xhosa-text">Nathi</span>
+                        </a>
+                    </li>
+                    <li class="nav-item ms-lg-3 mt-2 mt-lg-0">
+                        <button class="btn btn-sm btn-outline-light btn-language" onclick="toggleLanguage()">
+                            <i class="bi bi-translate me-1"></i>
+                            <span class="english-text">isiXhosa</span>
+                            <span class="xhosa-text">English</span>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ============ FLASH MESSAGES ============ -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="container mt-3">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show fade-in" role="alert">
+                        {% if category == 'success' %}
+                            <i class="bi bi-check-circle-fill me-2"></i>
+                        {% elif category == 'danger' %}
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        {% elif category == 'warning' %}
+                            <i class="bi bi-exclamation-circle-fill me-2"></i>
+                        {% else %}
+                            <i class="bi bi-info-circle-fill me-2"></i>
+                        {% endif %}
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- ============ MAIN CONTENT ============ -->
+    <main class="flex-grow-1">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- ============ FLOATING WHATSAPP BUTTON ============ -->
+    <a href="https://wa.me/{{ contacts.whatsapp }}?text=Hi%20Nogidela%20Holdings!%20I%20want%20to%20enquire%20about%20your%20services" 
+       class="whatsapp-float" 
+       target="_blank"
+       rel="noopener noreferrer"
+       title="Chat with us on WhatsApp">
+        <i class="bi bi-whatsapp"></i>
+    </a>
+
+    <!-- ============ FOOTER ============ -->
+    <footer class="pt-5 pb-4 mt-5">
+        <div class="container">
+            <div class="row">
+                <!-- Company Info -->
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <h5 class="fw-bold">
+                        <span class="english-text">Nogidela Holdings (PTY) LTD</span>
+                        <span class="xhosa-text">I-Nogidela Holdings (PTY) LTD</span>
+                    </h5>
+                    <p class="text-white-50 small">
+                        <span class="english-text">Professional, reliable services for your home, farm, and business needs across the Eastern Cape.</span>
+                        <span class="xhosa-text">Iinkonzo ezithembekileyo zasekhaya, efama nasekushishineni eMpuma Koloni.</span>
+                    </p>
+                </div>
+
+                <!-- Quick Links -->
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h5 class="fw-bold">
+                        <span class="english-text">Quick Links</span>
+                        <span class="xhosa-text">Iindlela Ezikhawulezayo</span>
+                    </h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="/">
+                            <span class="english-text">Home</span>
+                            <span class="xhosa-text">Ikhaya</span>
+                        </a></li>
+                        <li class="mb-2"><a href="{{ url_for('services') }}">
+                            <span class="english-text">Services</span>
+                            <span class="xhosa-text">Iinkonzo</span>
+                        </a></li>
+                        <li class="mb-2"><a href="{{ url_for('contact') }}">
+                            <span class="english-text">Contact</span>
+                            <span class="xhosa-text">Qhagamshelana</span>
+                        </a></li>
+                        <li class="mb-2"><a href="{{ url_for('about') }}">
+                            <span class="english-text">About Us</span>
+                            <span class="xhosa-text">Nathi</span>
+                        </a></li>
+                    </ul>
+                </div>
+
+                <!-- Services -->
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <h5 class="fw-bold">
+                        <span class="english-text">Our Services</span>
+                        <span class="xhosa-text">Iinkonzo Zethu</span>
+                    </h5>
+                    <ul class="list-unstyled small text-white-50">
+                        <li class="mb-1">• <span class="english-text">Grass Cutting</span><span class="xhosa-text">Ukusika Ingca</span></li>
+                        <li class="mb-1">• <span class="english-text">Tree Felling</span><span class="xhosa-text">Ukugawula Imithi</span></li>
+                        <li class="mb-1">• <span class="english-text">Meat Cutting</span><span class="xhosa-text">Ukusika Inyama</span></li>
+                        <li class="mb-1">• <span class="english-text">Equipment Hiring</span><span class="xhosa-text">Ukuqasha Izixhobo</span></li>
+                        <li class="mb-1">• <span class="english-text">Construction</span><span class="xhosa-text">Ukwakha</span></li>
+                    </ul>
+                </div>
+
+                <!-- Contact Info -->
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <h5 class="fw-bold">
+                        <span class="english-text">Contact Us</span>
+                        <span class="xhosa-text">Qhagamshelana Nathi</span>
+                    </h5>
+                    <ul class="list-unstyled small">
+                        <li class="mb-2">
+                            <i class="bi bi-envelope-fill me-2"></i>
+                            <a href="mailto:{{ contacts.email }}">{{ contacts.email }}</a>
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-telephone-fill me-2"></i>
+                            <a href="tel:{{ contacts.phone_display.replace(' ', '') }}">{{ contacts.phone_display }}</a>
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-whatsapp me-2"></i>
+                            <a href="https://wa.me/{{ contacts.whatsapp }}" target="_blank">
+                                <span class="english-text">WhatsApp Us</span>
+                                <span class="xhosa-text">WhatsApp Thina</span>
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-geo-alt-fill me-2"></i>
+                            <span class="text-white-50">{{ contacts.address }}</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <hr class="bg-light opacity-25 my-4">
+
+            <!-- Copyright -->
+            <div class="row">
+                <div class="col-12 text-center">
+                    <p class="text-white-50 small mb-0">
+                        © {{ current_year }} Nogidela Holdings (PTY) LTD. 
+                        <span class="english-text">All Rights Reserved.</span>
+                        <span class="xhosa-text">Onke Amalungelo Agciniwe.</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ============ JAVASCRIPT ============ -->
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Language Toggle -->
+    <script>
+        // Language toggle function
+        function toggleLanguage() {
+            document.body.classList.toggle('lang-active-xhosa');
+            
+            // Save preference to localStorage
+            const isXhosa = document.body.classList.contains('lang-active-xhosa');
+            localStorage.setItem('preferredLanguage', isXhosa ? 'xhosa' : 'english');
+            
+            console.log("Language switched to: " + (isXhosa ? "isiXhosa" : "English"));
+        }
+
+        // Load saved language preference on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            const savedLang = localStorage.getItem('preferredLanguage');
+            if (savedLang === 'xhosa') {
+                document.body.classList.add('lang-active-xhosa');
+            }
+        });
+
+        // Auto-hide flash messages after 5 seconds
+        window.addEventListener('DOMContentLoaded', function() {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                setTimeout(() => {
+                    const bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                }, 5000);
+            });
+        });
+    </script>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>
