@@ -744,25 +744,20 @@ if __name__ == '__main__':
     
     # Check email configuration
     print("\n📧 Email Configuration Check:")
-    if app.config['MAIL_USERNAME'] and app.config['MAIL_PASSWORD']:
+    if app.config.get('MAIL_USERNAME') and app.config.get('MAIL_PASSWORD'):
         print(f"   ✅ Email configured: {app.config['MAIL_USERNAME']}")
         print(f"   ✅ Mail server: {app.config['MAIL_SERVER']}:{app.config['MAIL_PORT']}")
     else:
         print("   ⚠️  WARNING: Email not configured! Check your .env file")
-        print("   📝 Make sure MAIL_USERNAME and MAIL_PASSWORD are set")
     
     print("\n" + "=" * 60)
     print("✅ Server is ready!")
     print("=" * 60)
-    print("\n📱 Open your browser and go to:")
-    print("   http://127.0.0.1:5000")
-    print("\n🔐 Admin login (HIDDEN URL):")
-    print("   URL: http://127.0.0.1:5000/ng-control/login")
-    print("   Username: admin")
-    print("   Password: admin123")
-    print("\n📞 Business WhatsApp: " + BUSINESS_CONTACTS['phone_display'])
-    print("✉️  Business Email: " + BUSINESS_CONTACTS['email'])
-    print("\nℹ️  Press CTRL+C to stop the server")
-    print("=" * 60 + "\n")
+
+    # RENDER / DEPLOYMENT FIX:
+    # Get port from environment variable (Render) or default to 5000 (Local)
+    port = int(os.environ.get("PORT", 5000))
     
-    app.run(debug=True, host='127.0.0.1', port=5000)
+    # host='0.0.0.0' allows external access (essential for Render)
+    # debug should be False in production, but keeping True for now if you need to see errors
+    app.run(debug=False, host='0.0.0.0', port=port)
