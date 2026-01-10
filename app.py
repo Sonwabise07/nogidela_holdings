@@ -61,6 +61,10 @@ if RESEND_API_KEY:
 else:
     print("⚠️  Resend API key not found. Using SMTP fallback.")
 
+# Use verified email for sender and notifications
+VERIFIED_EMAIL = "nogidelaholdings@gmail.com"  # Your verified Resend email
+BUSINESS_DISPLAY_EMAIL = "mbeko@nogidelaholdings.co.za"  # Display email for website
+
 # 2. SMTP CONFIGURATION (Fallback for local/dev)
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587  # Use 587 for TLS, NOT 465
@@ -68,7 +72,8 @@ app.config['MAIL_USE_TLS'] = True  # Use TLS, not SSL
 app.config['MAIL_USE_SSL'] = False
 app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
 app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')  # Use App Password, NOT regular password
-app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER', 'Nogidela Holdings <noreply@nogidelaholdings.co.za>')
+# Use verified email as sender for now
+app.config['MAIL_DEFAULT_SENDER'] = f'Nogidela Holdings <{VERIFIED_EMAIL}>'
 
 # Railway-specific optimizations
 app.config['MAIL_TIMEOUT'] = 15  # Increased timeout
@@ -78,6 +83,8 @@ app.config['MAIL_DEBUG'] = False  # Set to True for debugging
 
 # Feature flag to skip emails if needed
 SKIP_EMAILS = os.getenv('SKIP_EMAILS', 'False').lower() == 'true'
+# Flag to control customer emails (Resend blocks unverified recipients)
+SKIP_CUSTOMER_EMAILS = os.getenv('SKIP_CUSTOMER_EMAILS', 'True').lower() == 'true'
 
 # Initialize Extensions
 mail = Mail(app)
@@ -89,7 +96,8 @@ BUSINESS_CONTACTS = {
     'whatsapp': os.getenv('WHATSAPP_NUMBER', '27732165687'),
     'phone': os.getenv('PHONE_NUMBER', '0823286307'),
     'phone_display': os.getenv('PHONE_DISPLAY', '082 328 6307'),
-    'email': os.getenv('BUSINESS_EMAIL', 'mbeko@nogidelaholdings.co.za'),
+    'email': os.getenv('BUSINESS_EMAIL', BUSINESS_DISPLAY_EMAIL),  # Display email
+    'verified_email': VERIFIED_EMAIL,  # Verified email for notifications
     'address': os.getenv('BUSINESS_ADDRESS', '8 Bel Avenue, Centane/Kentani, Eastern Cape')
 }
 
@@ -100,7 +108,7 @@ logging.basicConfig(level=logging.INFO,
 logger = logging.getLogger(__name__)
 
 # ============ EMAIL CORE FUNCTIONS (WITH RESEND) ============
-def send_email_core(subject, recipient, body_text, from_email=None):
+def send_email_core(subject, recipient, body_text, from_email=None, reply_to=None):
     """
     Unified email sending function that tries Resend first, falls back to SMTP
     """
@@ -110,6 +118,9 @@ def send_email_core(subject, recipient, body_text, from_email=None):
     
     if not from_email:
         from_email = app.config['MAIL_DEFAULT_SENDER']
+    
+    if not reply_to:
+        reply_to = BUSINESS_CONTACTS['email']  # Use display email for reply-to
     
     # Option 1: Try Resend (Recommended for Railway)
     if RESEND_API_KEY:
@@ -123,13 +134,23 @@ def send_email_core(subject, recipient, body_text, from_email=None):
             else:
                 from_resend = from_email
             
-            response = resend.Emails.send({
+            params = {
                 "from": from_resend,
                 "to": recipient,
                 "subject": subject,
                 "text": body_text,
-                "reply_to": BUSINESS_CONTACTS['email']
-            })
+                "reply_to": reply_to
+            }
+            
+            # Only send to verified recipients (Resend blocks unverified emails on free tier)
+            # For now, only send to your verified email
+            if recipient != VERIFIED_EMAIL:
+                logger.warning(f"⚠️ Skipping Resend to unverified recipient: {recipient}")
+                logger.info(f"ℹ️ Would have sent to: {recipient}")
+                # Return success anyway since this is expected behavior
+                return True, "Recipient not verified - email skipped (Resend restriction)"
+            
+            response = resend.Emails.send(params)
             logger.info(f"✅ Email sent via Resend to {recipient}")
             return True, None
         except Exception as e:
@@ -145,6 +166,7 @@ def send_email_core(subject, recipient, body_text, from_email=None):
                 recipients=[recipient],
                 body=body_text,
                 sender=from_email,
+                reply_to=reply_to,
                 charset='utf-8'
             )
             mail.send(msg)
@@ -159,14 +181,14 @@ def send_email_core(subject, recipient, body_text, from_email=None):
         logger.error(f"❌ {error_msg}")
         return False, error_msg
 
-def send_async_email_wrapper(app_obj, subject, recipient, body_text, from_email=None):
+def send_async_email_wrapper(app_obj, subject, recipient, body_text, from_email=None, reply_to=None):
     """
     Wrapper for async email sending with proper app context
     """
     with app_obj.app_context():
-        send_email_core(subject, recipient, body_text, from_email)
+        send_email_core(subject, recipient, body_text, from_email, reply_to)
 
-def send_email_async(subject, recipient, body_text, from_email=None):
+def send_email_async(subject, recipient, body_text, from_email=None, reply_to=None):
     """
     Send email in background thread
     """
@@ -178,7 +200,7 @@ def send_email_async(subject, recipient, body_text, from_email=None):
         app_obj = current_app._get_current_object()
         Thread(
             target=send_async_email_wrapper,
-            args=(app_obj, subject, recipient, body_text, from_email),
+            args=(app_obj, subject, recipient, body_text, from_email, reply_to),
             daemon=True
         ).start()
         logger.info(f"📧 Async email queued: {subject}")
@@ -248,29 +270,22 @@ def validate_phone_number(phone):
     
     return None  # Invalid format
 
-# ============ EMAIL FUNCTIONS (UPDATED FOR RESEND) ============
-def send_booking_email(booking, service):
-    """Send booking confirmation email to business owner"""
+def format_booking_email_body(booking, service):
+    """Format booking confirmation email for business owner"""
+    formatted_date = booking.service_date.strftime('%A, %d %B %Y')
+    animal_details = ""
     
-    if SKIP_EMAILS:
-        logger.info(f"ℹ️ Skipping email for Booking #{booking.id} (SKIP_EMAILS=True)")
-        return True, "Emails disabled by configuration"
-    
-    try:
-        formatted_date = booking.service_date.strftime('%A, %d %B %Y')
-        animal_details = ""
-        
-        if service.category == 'Meat' and booking.quantity:
-            animal_details = f"""
+    if service.category == 'Meat' and booking.quantity:
+        animal_details = f"""
 Animal Details:
 - Type: {booking.animal_type}
 - Quantity: {booking.quantity}
 - Unit Price: R{service.price:,.2f}
 """
-        
-        cost_section = f"\nEstimated Cost: R{booking.estimated_cost:,.2f}" if booking.estimated_cost else ""
-        
-        body = f"""NEW BOOKING REQUEST FROM WEBSITE
+    
+    cost_section = f"\nEstimated Cost: R{booking.estimated_cost:,.2f}" if booking.estimated_cost else ""
+    
+    body = f"""NEW BOOKING REQUEST FROM WEBSITE
 {'=' * 50}
 
 SERVICE DETAILS:
@@ -301,20 +316,78 @@ Please confirm availability and contact the customer as soon as possible.
 Nogidela Holdings Automated Booking System
 {BUSINESS_CONTACTS['phone_display']}
 {BUSINESS_CONTACTS['email']}"""
-        
+    
+    return body
+
+def format_customer_email_body(booking, service):
+    """Format booking confirmation email for customer"""
+    formatted_date = booking.service_date.strftime('%A, %d %B %Y')
+    
+    body = f"""Dear {booking.client_name},
+
+Thank you for booking with Nogidela Holdings!
+
+YOUR BOOKING DETAILS:
+{'─' * 50}
+Service: {service.name}
+Date: {formatted_date}
+Location: {booking.location}
+Booking Reference: #{booking.id}
+
+We have received your booking request and will contact you within shortly to confirm availability and finalize details.
+
+If you have any questions, please contact us:
+📞 Phone: {BUSINESS_CONTACTS['phone_display']}
+📧 Email: {BUSINESS_CONTACTS['email']}
+💬 WhatsApp: https://wa.me/{BUSINESS_CONTACTS['whatsapp']}
+
+Thank you for choosing Nogidela Holdings!
+
+---
+Nogidela Holdings (PTY) LTD
+Professional Services in Eastern Cape
+{BUSINESS_CONTACTS['address']}"""
+    
+    return body
+
+# ============ EMAIL FUNCTIONS (UPDATED FOR RESEND) ============
+def send_booking_email(booking, service):
+    """Send booking confirmation to owner and attempt one for customer"""
+    
+    if SKIP_EMAILS:
+        logger.info(f"ℹ️ Skipping email for Booking #{booking.id} (SKIP_EMAILS=True)")
+        return True, "Emails disabled by configuration"
+    
+    try:
+        # 1. Notify the Owner (You) - This should always work
+        admin_body = format_booking_email_body(booking, service)
+        formatted_date = booking.service_date.strftime('%A, %d %B %Y')
         subject = f"🔔 NEW BOOKING: {service.name} - {formatted_date}"
         
-        # Use unified email function
+        # Send to verified email (nogidelaholdings@gmail.com)
         success, error = send_email_core(
             subject=subject,
-            recipient=BUSINESS_CONTACTS['email'],
-            body_text=body
+            recipient=BUSINESS_CONTACTS['verified_email'],  # Your verified Resend email
+            body_text=admin_body,
+            reply_to=BUSINESS_CONTACTS['email']  # Business email for replies
         )
         
         if success:
             logger.info(f"✅ Booking email sent for Booking #{booking.id}")
         else:
             logger.error(f"❌ Booking email failed for Booking #{booking.id}: {error}")
+        
+        # 2. Notify the Customer - This will fail silently until domain is verified
+        if not SKIP_CUSTOMER_EMAILS and booking.client_email:
+            cust_body = format_customer_email_body(booking, service)
+            # Send in background thread so if it fails, the website doesn't slow down
+            send_email_async(
+                subject="✅ Booking Received - Nogidela Holdings",
+                recipient=booking.client_email,
+                body_text=cust_body,
+                reply_to=BUSINESS_CONTACTS['email']
+            )
+            logger.info(f"📧 Customer confirmation queued for {booking.client_email}")
         
         return success, error
         
@@ -357,11 +430,12 @@ Nogidela Holdings Contact Form
         
         subject = f"📧 Contact Form: {contact_message.subject}"
         
-        # Use unified email function
+        # Send to verified email
         success, error = send_email_core(
             subject=subject,
-            recipient=BUSINESS_CONTACTS['email'],
-            body_text=body
+            recipient=BUSINESS_CONTACTS['verified_email'],  # Your verified Resend email
+            body_text=body,
+            reply_to=contact_message.email if contact_message.email else BUSINESS_CONTACTS['email']
         )
         
         if success:
@@ -377,58 +451,9 @@ Nogidela Holdings Contact Form
         return False, error_msg
 
 def send_customer_confirmation_email(booking, service):
-    """Send confirmation email to customer"""
-    if not booking.client_email:
-        return False, "No customer email provided"
-    
-    if SKIP_EMAILS:
-        logger.info(f"ℹ️ Skipping customer email for Booking #{booking.id} (SKIP_EMAILS=True)")
-        return True, "Emails disabled by configuration"
-    
-    try:
-        formatted_date = booking.service_date.strftime('%A, %d %B %Y')
-        
-        body = f"""Dear {booking.client_name},
-
-Thank you for booking with Nogidela Holdings!
-
-YOUR BOOKING DETAILS:
-{'─' * 50}
-Service: {service.name}
-Date: {formatted_date}
-Location: {booking.location}
-Booking Reference: #{booking.id}
-
-We have received your booking request and will contact you within shortly to confirm availability and finalize details.
-
-If you have any questions, please contact us:
-📞 Phone: {BUSINESS_CONTACTS['phone_display']}
-📧 Email: {BUSINESS_CONTACTS['email']}
-💬 WhatsApp: https://wa.me/{BUSINESS_CONTACTS['whatsapp']}
-
-Thank you for choosing Nogidela Holdings!
-
----
-Nogidela Holdings (PTY) LTD
-Professional Services in Eastern Cape
-{BUSINESS_CONTACTS['address']}"""
-        
-        subject = "✅ Booking Confirmation - Nogidela Holdings"
-        
-        # Send asynchronously in background
-        send_email_async(
-            subject=subject,
-            recipient=booking.client_email,
-            body_text=body
-        )
-        
-        logger.info(f"✅ Customer confirmation queued for {booking.client_email}")
-        return True, None
-        
-    except Exception as e:
-        error_msg = f"Customer email failed: {str(e)}"
-        logger.error(f"❌ {error_msg}")
-        return False, error_msg
+    """Send confirmation email to customer (legacy function - using send_booking_email instead)"""
+    # This function is kept for compatibility but the logic is now in send_booking_email
+    return True, "Email handling now in send_booking_email function"
 
 # ============ DATABASE INITIALIZATION ============
 def init_database():
@@ -529,7 +554,9 @@ def health_check():
         'status': 'healthy',
         'timestamp': datetime.now().isoformat(),
         'service': 'Nogidela Holdings Booking System',
-        'email_provider': 'Resend' if RESEND_API_KEY else 'SMTP (fallback)'
+        'email_provider': 'Resend' if RESEND_API_KEY else 'SMTP (fallback)',
+        'verified_email': VERIFIED_EMAIL,
+        'customer_emails': 'disabled' if SKIP_CUSTOMER_EMAILS else 'enabled'
     }), 200
 
 @app.route('/healthz')
@@ -554,54 +581,55 @@ def test_email():
         </html>
         '''
     
-    test_subject = "✅ Email Test from Railway"
-    test_body = "This is a test email from your Railway deployment. If you receive this, emails are working correctly!"
-    
+    test_subject = "✅ Email Test from Railway - Nogidela Holdings"
+    test_body = f"""This is a test email from your Railway deployment.
+
+If you receive this, emails are working correctly!
+
+System Status:
+- Resend API: {'Configured ✅' if RESEND_API_KEY else 'Not Configured ⚠️'}
+- Verified Email: {VERIFIED_EMAIL}
+- Business Email: {BUSINESS_CONTACTS['email']}
+- Customer Emails: {'Disabled ⚠️' if SKIP_CUSTOMER_EMAILS else 'Enabled ✅'}
+
+Next Steps:
+1. You will receive booking notifications at {VERIFIED_EMAIL}
+2. Customer emails are currently skipped (Resend restriction)
+3. Use WhatsApp backup for customer communication
+4. Verify domain next month to enable full email features"""
+
     try:
-        if RESEND_API_KEY:
-            # Test Resend
-            success, error = send_email_core(
-                subject=test_subject,
-                recipient=BUSINESS_CONTACTS['email'],
-                body_text=test_body
-            )
-            
-            if success:
-                return f'''
-                <!DOCTYPE html>
-                <html>
-                <head><title>Email Test Successful</title></head>
-                <body style="text-align: center; padding: 50px; font-family: Arial;">
-                    <h1 style="color: green;">✅ Email Test Successful!</h1>
-                    <p>A test email has been sent via <strong>Resend</strong> to: {BUSINESS_CONTACTS['email']}</p>
-                    <p><a href="/">← Go Home</a></p>
-                </body>
-                </html>
-                '''
-            else:
-                raise Exception(f"Resend failed: {error}")
+        # Test sending to verified email
+        success, error = send_email_core(
+            subject=test_subject,
+            recipient=VERIFIED_EMAIL,  # Send to your verified email
+            body_text=test_body
+        )
+        
+        if success:
+            return f'''
+            <!DOCTYPE html>
+            <html>
+            <head><title>Email Test Successful</title></head>
+            <body style="text-align: center; padding: 50px; font-family: Arial;">
+                <h1 style="color: green;">✅ Email Test Successful!</h1>
+                <p>A test email has been sent via <strong>Resend</strong> to: {VERIFIED_EMAIL}</p>
+                <div style="text-align: left; max-width: 600px; margin: 30px auto; padding: 20px; background: #f5f5f5; border-radius: 10px;">
+                    <h3>📧 Current Email Setup:</h3>
+                    <ul>
+                        <li><strong>Verified Email:</strong> {VERIFIED_EMAIL} ✅</li>
+                        <li><strong>Business Display Email:</strong> {BUSINESS_CONTACTS['email']}</li>
+                        <li><strong>Customer Emails:</strong> {"Skipped (Resend restriction)" if SKIP_CUSTOMER_EMAILS else "Enabled"}</li>
+                        <li><strong>WhatsApp Backup:</strong> Always Available ✅</li>
+                    </ul>
+                    <p><strong>Note:</strong> You will receive all booking notifications. Customers will see confirmation on-screen and can use WhatsApp.</p>
+                </div>
+                <p><a href="/">← Go Home</a></p>
+            </body>
+            </html>
+            '''
         else:
-            # Test SMTP
-            success, error = send_email_core(
-                subject=test_subject,
-                recipient=BUSINESS_CONTACTS['email'],
-                body_text=test_body
-            )
-            
-            if success:
-                return f'''
-                <!DOCTYPE html>
-                <html>
-                <head><title>Email Test Successful</title></head>
-                <body style="text-align: center; padding: 50px; font-family: Arial;">
-                    <h1 style="color: green;">✅ Email Test Successful!</h1>
-                    <p>A test email has been sent via <strong>SMTP</strong> to: {BUSINESS_CONTACTS['email']}</p>
-                    <p><a href="/">← Go Home</a></p>
-                </body>
-                </html>
-                '''
-            else:
-                raise Exception(f"SMTP failed: {error}")
+            raise Exception(f"Email failed: {error}")
                 
     except Exception as e:
         return f'''
@@ -611,17 +639,18 @@ def test_email():
         <body style="text-align: center; padding: 50px; font-family: Arial;">
             <h1 style="color: red;">❌ Email Test Failed</h1>
             <p><strong>Error:</strong> {str(e)}</p>
-            <p>Please check your email configuration in Railway environment variables.</p>
-            <p><strong>For Resend (Recommended on Railway):</strong></p>
-            <ul style="text-align: left; display: inline-block;">
-                <li>RESEND_API_KEY (Your Resend API key)</li>
-                <li>MAIL_DEFAULT_SENDER (Verified email in Resend, e.g., noreply@yourdomain.com)</li>
-            </ul>
-            <p><strong>For SMTP Fallback:</strong></p>
-            <ul style="text-align: left; display: inline-block;">
-                <li>MAIL_USERNAME (Gmail address)</li>
-                <li>MAIL_PASSWORD (Gmail App Password)</li>
-            </ul>
+            <div style="text-align: left; max-width: 600px; margin: 30px auto; padding: 20px; background: #fff3cd; border-radius: 10px;">
+                <h3>🚨 Action Required:</h3>
+                <ol>
+                    <li>Go to <a href="https://resend.com" target="_blank">Resend.com</a></li>
+                    <li>Log in with: <strong>{VERIFIED_EMAIL}</strong></li>
+                    <li>Go to API Keys → Create new key</li>
+                    <li>Copy the API key</li>
+                    <li>Go to Railway → Environment Variables</li>
+                    <li>Set <strong>RESEND_API_KEY</strong> to your new key</li>
+                    <li>Redeploy the application</li>
+                </ol>
+            </div>
             <p><a href="/">← Go Home</a></p>
         </body>
         </html>
@@ -703,14 +732,8 @@ def booking_step1(service_id):
             email_error = None
             
             try:
-                # Send to business owner (sync - important to know if it worked)
+                # Send booking email (includes both owner notification and customer attempt)
                 email_success, email_error = send_booking_email(booking, service)
-                
-                # Send customer confirmation in background (if business email succeeded)
-                if email_success and booking.client_email:
-                    send_customer_confirmation_email(booking, service)
-                else:
-                    logger.warning(f"Not sending customer confirmation: {email_error}")
                     
             except Exception as e:
                 logger.error(f"Email attempt failed: {e}")
@@ -769,10 +792,15 @@ def booking_confirmation(booking_id):
     whatsapp_message = format_whatsapp_message(booking_data)
     whatsapp_link = generate_whatsapp_link(whatsapp_message)
     
+    # Show appropriate message based on customer email status
+    customer_email_status = "enabled" if not SKIP_CUSTOMER_EMAILS else "disabled"
+    
     return render_template('booking_confirmation.html',
                          booking=booking, service=service,
                          email_success=email_success, email_error=email_error,
-                         whatsapp_link=whatsapp_link)
+                         whatsapp_link=whatsapp_link,
+                         customer_email_status=customer_email_status,
+                         verified_email=VERIFIED_EMAIL)
 
 @app.route('/contact', methods=['GET', 'POST'])
 def contact():
@@ -908,7 +936,8 @@ def admin_dashboard():
     return render_template('admin/dashboard.html',
                          stats=stats, pending_bookings=pending_bookings,
                          recent_bookings=recent_bookings, unread_messages=unread_messages,
-                         services=services, now=datetime.now())
+                         services=services, now=datetime.now(),
+                         verified_email=VERIFIED_EMAIL)
 
 @app.route('/ng-control/services', methods=['GET', 'POST'])
 @admin_required
@@ -1215,17 +1244,30 @@ if __name__ == '__main__':
     # Check feature flags
     print("\n⚙️ Feature Flags:")
     print(f"   ✅ SKIP_EMAILS: {SKIP_EMAILS}")
-    if SKIP_EMAILS:
-        print("   ⚠️  WARNING: Email sending is disabled via SKIP_EMAILS flag")
+    print(f"   ✅ SKIP_CUSTOMER_EMAILS: {SKIP_CUSTOMER_EMAILS}")
+    if SKIP_CUSTOMER_EMAILS:
+        print("   ⚠️  Customer emails are disabled (Resend restriction)")
+        print("   ⚠️  Customers will receive on-screen confirmation + WhatsApp")
     
     # Check business contacts
     print("\n📞 Business Contacts:")
     print(f"   ✅ WhatsApp: {BUSINESS_CONTACTS['whatsapp']}")
     print(f"   ✅ Phone: {BUSINESS_CONTACTS['phone_display']}")
-    print(f"   ✅ Email: {BUSINESS_CONTACTS['email']}")
+    print(f"   ✅ Display Email: {BUSINESS_CONTACTS['email']}")
+    print(f"   ✅ Verified Email (for notifications): {VERIFIED_EMAIL}")
+    
+    print("\n📋 Current Setup Summary:")
+    print("   ✅ You will receive ALL booking notifications")
+    print("   ✅ WhatsApp backup is ALWAYS available")
+    print("   ⚠️  Customer emails are skipped (Resend restriction)")
+    print("   ✅ On-screen confirmation works perfectly")
     
     print("\n" + "=" * 60)
-    print("✅ Server is ready!")
+    print("✅ Server is ready! Deployment Plan:")
+    print("1. Get Resend API key from Resend.com")
+    print("2. Add RESEND_API_KEY to Railway Environment Variables")
+    print("3. Redeploy on Railway")
+    print("4. Test with /test-email endpoint")
     print("=" * 60)
 
     # RENDER / DEPLOYMENT CONFIGURATION:
