@@ -10,7 +10,8 @@ from dotenv import load_dotenv
 from werkzeug.security import generate_password_hash
 from pathlib import Path
 import sys
-
+from threading import Thread
+import smtplib
 # Database models (imported after app config)
 from models import db, Admin, Service, Booking, ContactMessage
 
@@ -56,6 +57,7 @@ app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
 app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
 app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER', 'Nogidela Holdings <noreply@nogidelaholdings.co.za>')
 
+app.config['MAIL_TIMEOUT'] = 10  # Add this line
 # Initialize Extensions
 mail = Mail(app)
 db.init_app(app)
@@ -292,6 +294,26 @@ Professional Services in Eastern Cape
         error_msg = f"Customer email failed: {str(e)}"
         logger.error(f"❌ {error_msg}")
         return False, error_msg
+
+
+# ============ ASYNC EMAIL HELPER ============
+def send_async_email(app, msg):
+    """Send email in background thread with timeout"""
+    with app.app_context():
+        try:
+            original_timeout = smtplib._GLOBAL_DEFAULT_TIMEOUT if hasattr(smtplib, '_GLOBAL_DEFAULT_TIMEOUT') else None
+            smtplib._GLOBAL_DEFAULT_TIMEOUT = 10
+            mail.send(msg)
+            logger.info(f"✅ Email sent: {msg.subject}")
+            if original_timeout:
+                smtplib._GLOBAL_DEFAULT_TIMEOUT = original_timeout
+        except Exception as e:
+            logger.error(f"❌ Email failed: {str(e)}")
+
+def send_email_async(msg):
+    """Queue email for background sending"""
+    Thread(target=send_async_email, args=(app._get_current_object(), msg), daemon=True).start()
+    
 
 # ============ DATABASE INITIALIZATION ============
 def init_database():
