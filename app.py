@@ -9,6 +9,7 @@ from urllib.parse import quote
 from dotenv import load_dotenv
 from werkzeug.security import generate_password_hash
 from pathlib import Path
+import sys
 
 # Database models (imported after app config)
 from models import db, Admin, Service, Booking, ContactMessage
@@ -57,7 +58,7 @@ app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER', 'Nogidela H
 
 # Initialize Extensions
 mail = Mail(app)
-db.init_app(app)  # Only initialize once!
+db.init_app(app)
 
 # ============ BUSINESS CONFIGURATION ============
 # Read from environment variables with defaults
@@ -70,7 +71,9 @@ BUSINESS_CONTACTS = {
 }
 
 # ============ LOGGING SETUP ============
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.INFO, 
+                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                    handlers=[logging.StreamHandler(sys.stdout)])
 logger = logging.getLogger(__name__)
 
 # ============ HELPER FUNCTIONS ============
@@ -293,9 +296,10 @@ Professional Services in Eastern Cape
 # ============ DATABASE INITIALIZATION ============
 def init_database():
     """Initialize database with admin and seed services only in development"""
-    with app.app_context():
+    try:
         # Create tables
         db.create_all()
+        logger.info("✅ Database tables created/verified")
         
         # Create admin only if explicitly enabled via environment variable
         create_admin = os.getenv('CREATE_ADMIN', 'false').lower() == 'true'
@@ -312,7 +316,7 @@ def init_database():
                     admin.set_password(admin_password)
                     db.session.add(admin)
                     db.session.commit()
-                    logger.info(f"✓ Admin user '{admin_username}' created")
+                    logger.info(f"✅ Admin user '{admin_username}' created")
                 else:
                     logger.info(f"ℹ️ Admin user '{admin_username}' already exists")
             else:
@@ -342,7 +346,7 @@ def init_database():
             ]
             db.session.bulk_save_objects(initial_services)
             db.session.commit()
-            logger.info("✓ Database initialized with 11 services")
+            logger.info("✅ Database initialized with 11 services")
         else:
             # Check if Firewood Delivery exists, add it if not
             firewood_service = Service.query.filter_by(name="Firewood Delivery").first()
@@ -350,7 +354,19 @@ def init_database():
                 firewood = Service(name="Firewood Delivery", name_xh="Iinkuni", price=1200.0, unit="per load", category="Hiring")
                 db.session.add(firewood)
                 db.session.commit()
-                logger.info("✓ Firewood Delivery service added to existing database")
+                logger.info("✅ Firewood Delivery service added to existing database")
+                
+    except Exception as e:
+        logger.error(f"❌ Database initialization error: {str(e)}")
+        raise
+
+# Initialize database when app starts
+with app.app_context():
+    try:
+        init_database()
+        logger.info("✅ Database initialized successfully")
+    except Exception as e:
+        logger.error(f"❌ Failed to initialize database: {e}")
 
 # ============ CONTEXT PROCESSORS ============
 @app.context_processor
@@ -361,6 +377,21 @@ def inject_globals():
         'current_year': datetime.now().year,
         'env': os.getenv('FLASK_ENV', 'development')
     }
+
+# ============ HEALTH CHECK ENDPOINT ============
+@app.route('/health')
+def health_check():
+    """Health check endpoint for Railway"""
+    return jsonify({
+        'status': 'healthy',
+        'timestamp': datetime.now().isoformat(),
+        'service': 'Nogidela Holdings Booking System'
+    }), 200
+
+@app.route('/healthz')
+def healthz():
+    """Kubernetes-style health check"""
+    return '', 200
 
 # ============ PUBLIC ROUTES ============
 @app.route('/')
@@ -863,9 +894,6 @@ if __name__ == '__main__':
     print("=" * 60)
     print("NOGIDELA HOLDINGS - Starting Server")
     print("=" * 60)
-    
-    # Initialize database
-    init_database()
     
     # Check environment
     env = os.getenv('FLASK_ENV', 'development')
