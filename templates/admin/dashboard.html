@@ -12,55 +12,58 @@
             --forest-green: #2d5016;
         }
         
-        body { background: #f5f7fa; font-family: 'Segoe UI', Tahoma, sans-serif; }
-        
-        .sidebar {
-            background: linear-gradient(135deg, var(--navy) 0%, #0d1f2d 100%);
+        body { 
+            background: #f5f7fa; 
+            font-family: 'Segoe UI', Tahoma, sans-serif; 
             min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .admin-container {
+            max-width: 800px;
+            width: 100%;
+            padding: 20px;
+        }
+        
+        .admin-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+            margin-bottom: 30px;
+        }
+        
+        .logo {
+            width: 80px;
+            height: 80px;
+            background: var(--navy);
             color: white;
-            position: fixed;
-            width: 250px;
-            padding: 0;
-        }
-        
-        .sidebar .logo {
-            padding: 1.5rem;
-            background: rgba(0,0,0,0.2);
-            border-bottom: 2px solid var(--forest-green);
-        }
-        
-        .sidebar .nav-link {
-            color: rgba(255,255,255,0.8);
-            padding: 1rem 1.5rem;
-            border-left: 3px solid transparent;
-            transition: all 0.3s;
-        }
-        
-        .sidebar .nav-link:hover,
-        .sidebar .nav-link.active {
-            background: rgba(255,255,255,0.1);
-            color: white;
-            border-left-color: var(--forest-green);
-        }
-        
-        .main-content {
-            margin-left: 250px;
-            padding: 2rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 2rem;
+            font-weight: bold;
         }
         
         .stat-card {
             background: white;
             border-radius: 10px;
-            padding: 1.5rem;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-            margin-bottom: 1.5rem;
-            border-left: 4px solid var(--forest-green);
+            padding: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+            text-align: center;
+            border-left: 5px solid var(--forest-green);
         }
         
         .stat-card .number {
-            font-size: 2rem;
+            font-size: 2.5rem;
             font-weight: bold;
             color: var(--navy);
+            margin-bottom: 5px;
         }
         
         .stat-card .label {
@@ -68,80 +71,83 @@
             font-size: 0.9rem;
         }
         
-        .card {
-            border: none;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        .action-btn {
+            background: white;
+            border: 2px solid var(--forest-green);
+            color: var(--forest-green);
+            padding: 20px;
             border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            height: 100%;
+            min-height: 120px;
         }
         
-        .table-hover tbody tr:hover {
-            background: #f8f9fa;
+        .action-btn:hover {
+            background: var(--forest-green);
+            color: white;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(45, 80, 22, 0.2);
         }
         
-        .badge-pending { background: #ffc107; }
-        .badge-confirmed { background: #0dcaf0; }
-        .badge-completed { background: #28a745; }
-        .badge-cancelled { background: #dc3545; }
+        .action-btn i {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        
+        .action-btn .btn-label {
+            font-weight: 500;
+            font-size: 1rem;
+        }
+        
+        .logout-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .logout-btn:hover {
+            background: #c82333;
+            color: white;
+        }
         
         @media (max-width: 768px) {
-            .sidebar {
-                width: 100%;
-                position: relative;
-                min-height: auto;
+            .admin-container {
+                padding: 10px;
             }
-            .main-content {
-                margin-left: 0;
-                padding: 1rem;
+            
+            .admin-card {
+                padding: 25px;
+            }
+            
+            .stat-card .number {
+                font-size: 2rem;
             }
         }
     </style>
 </head>
 <body>
-
-    <div class="d-flex">
-        <!-- SIDEBAR -->
-        <div class="sidebar">
-            <div class="logo">
-                <h4 class="mb-0"><i class="bi bi-shield-lock"></i> ADMIN PANEL</h4>
-                <small>Nogidela Holdings</small>
-            </div>
-            
-            <nav class="nav flex-column mt-3">
-                <a href="{{ url_for('admin_dashboard') }}" class="nav-link active">
-                    <i class="bi bi-speedometer2 me-2"></i> Dashboard
-                </a>
-                <a href="{{ url_for('admin_bookings') }}" class="nav-link">
-                    <i class="bi bi-calendar-check me-2"></i> Bookings
-                    {% if stats.pending_count > 0 %}
-                    <span class="badge bg-warning text-dark ms-2">{{ stats.pending_count }}</span>
-                    {% endif %}
-                </a>
-                <a href="{{ url_for('admin_services') }}" class="nav-link">
-                    <i class="bi bi-briefcase me-2"></i> Services & Prices
-                </a>
-                <a href="{{ url_for('admin_messages') }}" class="nav-link">
-                    <i class="bi bi-envelope me-2"></i> Messages
-                    {% if stats.unread_messages > 0 %}
-                    <span class="badge bg-danger ms-2">{{ stats.unread_messages }}</span>
-                    {% endif %}
-                </a>
-                <a href="{{ url_for('admin_monthly_report') }}" class="nav-link">
-                    <i class="bi bi-bar-chart me-2"></i> Monthly Report
-                </a>
-                
-                <hr style="border-color: rgba(255,255,255,0.2); margin: 1rem 1.5rem;">
-                
-                <a href="{{ url_for('change_password') }}" class="nav-link">
-                    <i class="bi bi-key me-2"></i> Change Password
-                </a>
-                <a href="{{ url_for('admin_logout') }}" class="nav-link">
-                    <i class="bi bi-box-arrow-right me-2"></i> Logout
-                </a>
-            </nav>
-        </div>
-
-        <!-- MAIN CONTENT -->
-        <div class="main-content flex-grow-1">
+    <div class="admin-container">
+        
+        <!-- Admin Header -->
+        <div class="admin-card text-center">
+            <div class="logo">NH</div>
+            <h2 class="mb-3">Nogidela Holdings Admin</h2>
+            <p class="text-muted mb-4">
+                Welcome, <strong>{{ session.admin_username }}</strong>
+                <br>
+                {{ now.strftime('%A, %d %B %Y') }}
+            </p>
             
             <!-- Flash Messages -->
             {% with messages = get_flashed_messages(with_categories=true) %}
@@ -154,212 +160,95 @@
                     {% endfor %}
                 {% endif %}
             {% endwith %}
-            
-            <!-- Header -->
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <h2 class="mb-0">Welcome, {{ session.admin_username }}!</h2>
-                    <small class="text-muted">{{ now.strftime('%A, %d %B %Y') }}</small>
+        </div>
+        
+        <!-- Stats Cards -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="number">{{ stats.this_month_bookings }}</div>
+                    <div class="label">Bookings This Month</div>
                 </div>
-                <a href="{{ url_for('home') }}" class="btn btn-outline-secondary" target="_blank">
-                    <i class="bi bi-eye"></i> View Website
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="number">{{ stats.pending_count }}</div>
+                    <div class="label">Pending Bookings</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="number">R{{ "{:,.0f}".format(stats.this_month_revenue) }}</div>
+                    <div class="label">Monthly Revenue</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Admin Actions -->
+        <div class="admin-card">
+            <h4 class="text-center mb-4">Quick Actions</h4>
+            <div class="row g-4">
+                <!-- Change Prices -->
+                <div class="col-md-6">
+                    <a href="{{ url_for('admin_services') }}" class="action-btn">
+                        <div class="text-center">
+                            <i class="bi bi-currency-dollar"></i>
+                            <div class="btn-label">Change Service Prices</div>
+                            <small class="text-muted">Update meat cutting & hiring prices</small>
+                        </div>
+                    </a>
+                </div>
+                
+                <!-- View Reports -->
+                <div class="col-md-6">
+                    <a href="{{ url_for('admin_monthly_report') }}" class="action-btn">
+                        <div class="text-center">
+                            <i class="bi bi-bar-chart"></i>
+                            <div class="btn-label">View Monthly Report</div>
+                            <small class="text-muted">Revenue & booking statistics</small>
+                        </div>
+                    </a>
+                </div>
+                
+                <!-- Change Password -->
+                <div class="col-md-6">
+                    <a href="{{ url_for('change_password') }}" class="action-btn">
+                        <div class="text-center">
+                            <i class="bi bi-key"></i>
+                            <div class="btn-label">Change Password</div>
+                            <small class="text-muted">Update your admin password</small>
+                        </div>
+                    </a>
+                </div>
+                
+                <!-- View Website -->
+                <div class="col-md-6">
+                    <a href="{{ url_for('home') }}" target="_blank" class="action-btn">
+                        <div class="text-center">
+                            <i class="bi bi-eye"></i>
+                            <div class="btn-label">View Website</div>
+                            <small class="text-muted">See how customers view the site</small>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Logout Button -->
+            <div class="text-center mt-5 pt-4 border-top">
+                <a href="{{ url_for('admin_logout') }}" class="logout-btn">
+                    <i class="bi bi-box-arrow-right me-2"></i> Logout
                 </a>
             </div>
-
-            <!-- STATS CARDS -->
-            <div class="row">
-                <div class="col-md-3">
-                    <div class="stat-card">
-                        <div class="number">{{ stats.pending_count }}</div>
-                        <div class="label"><i class="bi bi-hourglass-split"></i> Pending Bookings</div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="stat-card">
-                        <div class="number">{{ stats.this_month_bookings }}</div>
-                        <div class="label"><i class="bi bi-calendar-month"></i> This Month</div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="stat-card">
-                        <div class="number">R{{ "{:,.0f}".format(stats.this_month_revenue) }}</div>
-                        <div class="label"><i class="bi bi-currency-dollar"></i> Monthly Revenue</div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="stat-card">
-                        <div class="number">{{ stats.unread_messages }}</div>
-                        <div class="label"><i class="bi bi-envelope"></i> Unread Messages</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- QUICK ACTIONS -->
-            <div class="row mb-4">
-                <div class="col-12">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title mb-3"><i class="bi bi-lightning-fill"></i> Quick Actions</h5>
-                            <div class="d-flex gap-2 flex-wrap">
-                                <a href="{{ url_for('admin_services') }}" class="btn btn-primary">
-                                    <i class="bi bi-pencil"></i> Edit Prices
-                                </a>
-                                <a href="{{ url_for('admin_bookings') }}?status=Pending" class="btn btn-warning">
-                                    <i class="bi bi-clock"></i> View Pending ({{ stats.pending_count }})
-                                </a>
-                                <a href="{{ url_for('admin_monthly_report') }}" class="btn btn-success">
-                                    <i class="bi bi-file-earmark-bar-graph"></i> Monthly Report
-                                </a>
-                                <a href="{{ url_for('admin_messages') }}" class="btn btn-info">
-                                    <i class="bi bi-envelope-open"></i> Check Messages ({{ stats.unread_messages }})
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- PENDING BOOKINGS -->
-            {% if pending_bookings %}
-            <div class="card mb-4">
-                <div class="card-header bg-warning text-dark">
-                    <h5 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Pending Bookings - Action Required</h5>
-                </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead>
-                                <tr>
-                                    <th>Booking #</th>
-                                    <th>Customer</th>
-                                    <th>Service</th>
-                                    <th>Date</th>
-                                    <th>Amount</th>
-                                    <th>Contact</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for booking in pending_bookings[:10] %}
-                                <tr>
-                                    <td><strong>#{{ booking.id }}</strong></td>
-                                    <td>{{ booking.client_name }}</td>
-                                    <td>{{ booking.service.name }}</td>
-                                    <td>{{ booking.service_date.strftime('%d %b %Y') }}</td>
-                                    <td>
-                                        {% if booking.estimated_cost %}
-                                        <strong>R{{ "{:,.2f}".format(booking.estimated_cost) }}</strong>
-                                        {% else %}
-                                        <span class="text-muted">Quote</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        <a href="tel:{{ booking.client_contact }}" class="btn btn-sm btn-outline-primary">
-                                            <i class="bi bi-telephone"></i>
-                                        </a>
-                                        <a href="https://wa.me/27{{ booking.client_contact.replace(' ', '').replace('0', '', 1) }}" target="_blank" class="btn btn-sm btn-success">
-                                            <i class="bi bi-whatsapp"></i>
-                                        </a>
-                                    </td>
-                                    <td>
-                                        <form method="POST" action="{{ url_for('update_booking_status', booking_id=booking.id) }}" style="display:inline;">
-                                            <input type="hidden" name="status" value="Confirmed">
-                                            <button type="submit" class="btn btn-sm btn-success">
-                                                <i class="bi bi-check"></i> Confirm
-                                            </button>
-                                        </form>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-            {% endif %}
-
-            <!-- RECENT BOOKINGS -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h5 class="mb-0"><i class="bi bi-clock-history"></i> Recent Bookings (Last 10)</h5>
-                </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Customer</th>
-                                    <th>Service</th>
-                                    <th>Amount</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for booking in recent_bookings[:10] %}
-                                <tr>
-                                    <td>{{ booking.created_at.strftime('%d %b, %H:%M') }}</td>
-                                    <td>{{ booking.client_name }}</td>
-                                    <td>{{ booking.service.name }}</td>
-                                    <td>
-                                        {% if booking.estimated_cost %}
-                                        R{{ "{:,.0f}".format(booking.estimated_cost) }}
-                                        {% else %}
-                                        <span class="text-muted">-</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        <span class="badge badge-{{ booking.status.lower() }}">
-                                            {{ booking.status }}
-                                        </span>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                <div class="card-footer text-center">
-                    <a href="{{ url_for('admin_bookings') }}" class="btn btn-sm btn-outline-primary">
-                        View All Bookings <i class="bi bi-arrow-right"></i>
-                    </a>
-                </div>
-            </div>
-
-            <!-- UNREAD MESSAGES -->
-            {% if unread_messages %}
-            <div class="card">
-                <div class="card-header bg-info text-white">
-                    <h5 class="mb-0"><i class="bi bi-envelope-exclamation"></i> Unread Messages</h5>
-                </div>
-                <div class="card-body">
-                    {% for message in unread_messages[:5] %}
-                    <div class="border-bottom pb-3 mb-3">
-                        <div class="d-flex justify-content-between">
-                            <strong>{{ message.name }}</strong>
-                            <small class="text-muted">{{ message.created_at.strftime('%d %b, %H:%M') }}</small>
-                        </div>
-                        <div class="text-muted small">{{ message.email }} | {{ message.phone }}</div>
-                        <div class="mt-2">{{ message.message[:100] }}{% if message.message|length > 100 %}...{% endif %}</div>
-                        <div class="mt-2">
-                            <a href="mailto:{{ message.email }}" class="btn btn-sm btn-primary">
-                                <i class="bi bi-envelope"></i> Reply
-                            </a>
-                            <a href="tel:{{ message.phone }}" class="btn btn-sm btn-success">
-                                <i class="bi bi-telephone"></i> Call
-                            </a>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-                <div class="card-footer text-center">
-                    <a href="{{ url_for('admin_messages') }}" class="btn btn-sm btn-outline-info">
-                        View All Messages <i class="bi bi-arrow-right"></i>
-                    </a>
-                </div>
-            </div>
-            {% endif %}
-
+        </div>
+        
+        <!-- Info Notice -->
+        <div class="alert alert-info">
+            <h6><i class="bi bi-info-circle"></i> Admin Notice:</h6>
+            <p class="mb-0 small">
+                • Bookings are handled manually via phone/email after confirmation emails are sent<br>
+                • Use this panel only to update prices and check monthly reports<br>
+                • Contact information is in booking confirmation emails
+            </p>
         </div>
     </div>
 

@@ -126,6 +126,128 @@
         margin-top: 5px;
     }
     
+    /* Contact Action Cards */
+    .contact-action-card {
+        background: white;
+        border-radius: 12px;
+        padding: 25px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        margin: 20px 0;
+        border: 2px solid #e9ecef;
+        transition: transform 0.3s ease;
+    }
+    
+    .contact-action-card:hover {
+        transform: translateY(-5px);
+        border-color: var(--forest-green);
+    }
+    
+    .contact-action-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        padding: 15px;
+        border-radius: 10px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        margin-bottom: 10px;
+        font-weight: 500;
+        width: 100%;
+        border: none;
+    }
+    
+    .contact-action-btn.whatsapp {
+        background: #25D366;
+        color: white;
+    }
+    
+    .contact-action-btn.whatsapp:hover {
+        background: #128C7E;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(37, 211, 102, 0.3);
+    }
+    
+    .contact-action-btn.phone {
+        background: var(--navy);
+        color: white;
+    }
+    
+    .contact-action-btn.phone:hover {
+        background: var(--navy-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(26, 58, 82, 0.3);
+    }
+    
+    .contact-action-btn.email {
+        background: #EA4335;
+        color: white;
+    }
+    
+    .contact-action-btn.email:hover {
+        background: #D14836;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(234, 67, 53, 0.3);
+    }
+    
+    .contact-action-btn i {
+        font-size: 1.3rem;
+    }
+    
+    /* Email Status Indicator */
+    .email-status {
+        padding: 15px;
+        border-radius: 10px;
+        margin: 20px 0;
+        text-align: center;
+    }
+    
+    .email-status.success {
+        background: #d4edda;
+        border: 1px solid #c3e6cb;
+        color: #155724;
+    }
+    
+    .email-status.warning {
+        background: #fff3cd;
+        border: 1px solid #ffeaa7;
+        color: #856404;
+    }
+
+    /* Loading/Printing States */
+    .print-loading {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.9);
+        z-index: 9999;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+    }
+    
+    .print-loading.active {
+        display: flex;
+    }
+    
+    .print-loading .spinner {
+        width: 50px;
+        height: 50px;
+        border: 5px solid #f3f3f3;
+        border-top: 5px solid var(--forest-green);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-bottom: 15px;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
     /* Mobile Responsive */
     @media (max-width: 768px) {
         .confirmation-card {
@@ -148,6 +270,19 @@
         .row.g-3 .col-md-4 {
             margin-bottom: 10px;
         }
+        
+        .contact-action-card {
+            padding: 20px;
+        }
+        
+        .confirmation-container {
+            padding: 20px 10px;
+        }
+        
+        .confirmation-actions .btn {
+            width: 100%;
+            margin-bottom: 10px;
+        }
     }
 </style>
 {% endblock %}
@@ -157,7 +292,7 @@
 <div class="confirmation-container">
     
     <!-- Success Icon -->
-    <div class="success-icon">
+    <div class="success-icon" aria-label="Booking Confirmed">
         <i class="bi bi-check-lg"></i>
     </div>
     
@@ -173,13 +308,30 @@
         </p>
     </div>
     
+    <!-- Email Status Indicator -->
+    {% if email_sent %}
+    <div class="email-status success">
+        <i class="bi bi-envelope-check-fill me-2"></i>
+        <span class="english-text">✅ Confirmation email has been sent to your inbox.</span>
+        <span class="xhosa-text">✅ I-imeyili yokuqinisekisa ithunyelwe kwibhokisi yakho yokungenayo.</span>
+    </div>
+    {% else %}
+    <div class="email-status warning">
+        <i class="bi bi-envelope-exclamation me-2"></i>
+        <span class="english-text">⚠️ Email confirmation was not sent. Please save your booking reference below.</span>
+        <span class="xhosa-text">⚠️ I-imeyili yokuqinisekisa ayithunyelwanga. Nceda ugcine inombolo yakho yokubhukisha ngezantsi.</span>
+    </div>
+    {% endif %}
+    
     <!-- Booking Reference Number -->
     <div class="reference-number">
         <div class="ref-label">
             <span class="english-text">Booking Reference</span>
             <span class="xhosa-text">Inombolo Yobhukisha</span>
         </div>
-        <div class="ref-value">NH-{{ booking.id | string | upper | replace('1', 'A') | replace('2', 'B') | replace('3', 'C') }}{{ booking.id }}</div>
+        <div class="ref-value">
+            NH-{{ booking.id | string | upper | replace('1', 'A') | replace('2', 'B') | replace('3', 'C') | replace('4', 'D') | replace('5', 'E') | replace('6', 'F') | replace('7', 'G') | replace('8', 'H') | replace('9', 'I') | replace('0', 'J') }}-{{ booking.id }}
+        </div>
     </div>
     
     <!-- Booking Details Card -->
@@ -232,6 +384,18 @@
                 <span class="xhosa-text">Ubungakanani</span>
             </span>
             <span class="detail-value">{{ booking.quantity }}</span>
+        </div>
+        {% endif %}
+        
+        <!-- Animal Type (for meat cutting) -->
+        {% if booking.animal_type %}
+        <div class="booking-detail-row">
+            <span class="detail-label">
+                <i class="bi bi-egg-fried me-2"></i>
+                <span class="english-text">Animal Type</span>
+                <span class="xhosa-text">Uhlobo Lwesilwanyana</span>
+            </span>
+            <span class="detail-value">{{ booking.animal_type }}</span>
         </div>
         {% endif %}
         
@@ -302,13 +466,13 @@
                 </h6>
                 <p class="mb-3 small">
                     <span class="english-text">
-                        • Your booking has been sent to our team via email<br>
+                        • Your booking has been sent to our team<br>
                         • We will review your request and contact you within 24 hours<br>
                         • You will receive confirmation via phone call, WhatsApp, or email<br>
                         • Please keep your phone handy so we can reach you
                     </span>
                     <span class="xhosa-text">
-                        • Ukubhukisha kwakho kuthunyelwe kwiqela lethu nge-imeyili<br>
+                        • Ukubhukisha kwakho kuthunyelwe kwiqela lethu<br>
                         • Siza kuhlola isicelo sakho size sikunxibelelane kwiiyure ezingama-24<br>
                         • Uya kufumana isiqinisekiso ngomnxeba, i-WhatsApp, okanye i-imeyili<br>
                         • Nceda ugcine ifowuni yakho ikufutshane ukuze sikwazi ukukufikelela
@@ -318,10 +482,10 @@
         </div>
     </div>
     
-    <!-- Contact Information Box -->
-    <div class="confirmation-card mt-4">
+    <!-- Contact Information Card -->
+    <div class="contact-action-card">
         <h5 class="fw-bold text-navy mb-3 text-center">
-            <i class="bi bi-telephone-fill me-2"></i>
+            <i class="bi bi-headset me-2"></i>
             <span class="english-text">Need to Reach Us?</span>
             <span class="xhosa-text">Ufuna Ukusifikelela?</span>
         </h5>
@@ -332,54 +496,190 @@
         
         <div class="row g-3">
             <div class="col-md-4">
-                <a href="tel:{{ contacts.phone_display.replace(' ', '') }}" class="btn btn-outline-navy w-100" style="padding: 15px;">
-                    <i class="bi bi-telephone-fill d-block mb-2" style="font-size: 1.5rem;"></i>
-                    <div class="small fw-bold">
-                        <span class="english-text">Call Us</span>
-                        <span class="xhosa-text">Sitsalele</span>
+                <a href="tel:{{ contacts.phone }}" 
+                   class="contact-action-btn phone" 
+                   aria-label="Call Nogidela Holdings">
+                    <i class="bi bi-telephone-fill"></i>
+                    <div>
+                        <div class="fw-bold">
+                            <span class="english-text">Call Us</span>
+                            <span class="xhosa-text">Sitsalele</span>
+                        </div>
+                        <div class="small">{{ contacts.phone_display }}</div>
                     </div>
-                    <div class="small">{{ contacts.phone_display }}</div>
                 </a>
             </div>
             <div class="col-md-4">
-                <a href="https://wa.me/{{ contacts.whatsapp }}?text=Hi%20Nogidela%20Holdings!%20I%20have%20a%20question%20about%20booking%20NH-{{ booking.id }}" 
-                   class="btn btn-outline-success w-100" 
+                <a href="{{ whatsapp_link }}" 
+                   class="contact-action-btn whatsapp" 
                    target="_blank"
                    rel="noopener noreferrer"
-                   style="padding: 15px;">
-                    <i class="bi bi-whatsapp d-block mb-2" style="font-size: 1.5rem;"></i>
-                    <div class="small fw-bold">
-                        <span class="english-text">WhatsApp</span>
-                        <span class="xhosa-text">WhatsApp</span>
-                    </div>
-                    <div class="small">
-                        <span class="english-text">Chat with us</span>
-                        <span class="xhosa-text">Thetha nathi</span>
+                   aria-label="Send WhatsApp message to Nogidela Holdings">
+                    <i class="bi bi-whatsapp"></i>
+                    <div>
+                        <div class="fw-bold">
+                            <span class="english-text">WhatsApp</span>
+                            <span class="xhosa-text">WhatsApp</span>
+                        </div>
+                        <div class="small">
+                            <span class="english-text">Send Booking</span>
+                            <span class="xhosa-text">Thumela Ukubhukisha</span>
+                        </div>
                     </div>
                 </a>
             </div>
             <div class="col-md-4">
                 <a href="mailto:{{ contacts.email }}?subject=Question%20about%20Booking%20NH-{{ booking.id }}" 
-                   class="btn btn-outline-primary w-100"
-                   style="padding: 15px;">
-                    <i class="bi bi-envelope-fill d-block mb-2" style="font-size: 1.5rem;"></i>
-                    <div class="small fw-bold">
-                        <span class="english-text">Email Us</span>
-                        <span class="xhosa-text">Sithumelele i-Email</span>
+                   class="contact-action-btn email"
+                   aria-label="Send email to Nogidela Holdings">
+                    <i class="bi bi-envelope-fill"></i>
+                    <div>
+                        <div class="fw-bold">
+                            <span class="english-text">Email Us</span>
+                            <span class="xhosa-text">Sithumelele i-Email</span>
+                        </div>
+                        <div class="small">{{ contacts.email }}</div>
                     </div>
-                    <div class="small">{{ contacts.email }}</div>
                 </a>
+            </div>
+        </div>
+        
+        <!-- WhatsApp Backup Note -->
+        <div class="mt-4 pt-3 border-top text-center">
+            <p class="small text-muted mb-2">
+                <span class="english-text">
+                    💡 <strong>Tip:</strong> Click WhatsApp button to send your booking details directly to our team.
+                </span>
+                <span class="xhosa-text">
+                    💡 <strong>Icebiso:</strong> Cofa iqhosha le-WhatsApp ukuthumela iinkcukacha zokubhukisha kwakho kwiqela lethu ngokuqinisekileyo.
+                </span>
+            </p>
+        </div>
+    </div>
+    
+    <!-- Save Booking Instructions -->
+    <div class="confirmation-card">
+        <h5 class="fw-bold text-navy mb-3">
+            <i class="bi bi-save me-2"></i>
+            <span class="english-text">Save Your Booking</span>
+            <span class="xhosa-text">Gcina Ukubhukisha Kwakho</span>
+        </h5>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <div class="d-flex align-items-start p-3 bg-light rounded">
+                    <i class="bi bi-camera text-primary me-3 mt-1" style="font-size: 1.5rem;"></i>
+                    <div>
+                        <h6 class="fw-bold mb-1">
+                            <span class="english-text">📸 Take Screenshot</span>
+                            <span class="xhosa-text">📸 Thatha Iskrinshot</span>
+                        </h6>
+                        <p class="small text-muted mb-0">
+                            <span class="english-text">Save this page as a screenshot on your phone</span>
+                            <span class="xhosa-text">Gcina eli phepha njengeskrinshot kwifowuni yakho</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="d-flex align-items-start p-3 bg-light rounded">
+                    <i class="bi bi-printer text-success me-3 mt-1" style="font-size: 1.5rem;"></i>
+                    <div>
+                        <h6 class="fw-bold mb-1">
+                            <span class="english-text">🖨️ Print Page</span>
+                            <span class="xhosa-text">🖨️ Printa Iphepha</span>
+                        </h6>
+                        <p class="small text-muted mb-0">
+                            <span class="english-text">Use Ctrl+P to print this confirmation</span>
+                            <span class="xhosa-text">Sebenzisa i-Ctrl+P ukuprinta esi siqinisekiso</span>
+                        </p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
     
-    <!-- Back to Home Button -->
-    <div class="text-center mt-4">
+    <!-- Next Steps Card -->
+    <div class="confirmation-card">
+        <h5 class="fw-bold text-navy mb-3">
+            <i class="bi bi-clock-history me-2"></i>
+            <span class="english-text">What to Expect Next</span>
+            <span class="xhosa-text">Oku Kulindeleke Okulandelayo</span>
+        </h5>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="text-center p-3">
+                    <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                        <i class="bi bi-telephone" style="font-size: 1.5rem;"></i>
+                    </div>
+                    <h6 class="fw-bold mb-2">
+                        <span class="english-text">1. Confirmation Call</span>
+                        <span class="xhosa-text">1. Umnxeba Wokuqinisekisa</span>
+                    </h6>
+                    <p class="small text-muted">
+                        <span class="english-text">We'll call to confirm details</span>
+                        <span class="xhosa-text">Siza kutsalela ukuqinisekisa iinkcukacha </span>
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="text-center p-3">
+                    <div class="bg-success bg-opacity-10 text-success rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                        <i class="bi bi-calendar-check" style="font-size: 1.5rem;"></i>
+                    </div>
+                    <h6 class="fw-bold mb-2">
+                        <span class="english-text">2. Date Confirmation</span>
+                        <span class="xhosa-text">2. Ukuqinisekiswa Komhla</span>
+                    </h6>
+                    <p class="small text-muted">
+                        <span class="english-text">We'll confirm the exact date and time</span>
+                        <span class="xhosa-text">Siza kuqinisekisa umhla ochanekileyo nexesha</span>
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="text-center p-3">
+                    <div class="bg-warning bg-opacity-10 text-warning rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                        <i class="bi bi-truck" style="font-size: 1.5rem;"></i>
+                    </div>
+                    <h6 class="fw-bold mb-2">
+                        <span class="english-text">3. Service Day</span>
+                        <span class="xhosa-text">3. Usuku Lwenkonzo</span>
+                    </h6>
+                    <p class="small text-muted">
+                        <span class="english-text">Our team arrives on time with equipment</span>
+                        <span class="xhosa-text">Iqela lethu lifika ngexesha linezixhobo</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Print Loading Overlay -->
+    <div class="print-loading" id="printLoading">
+        <div class="spinner"></div>
+        <p class="mt-3 text-dark">
+            <span class="english-text">Preparing for printing...</span>
+            <span class="xhosa-text">Ilungiselela ukuprinta...</span>
+        </p>
+    </div>
+    
+    <!-- Action Buttons -->
+    <div class="text-center mt-4 confirmation-actions">
         <a href="{{ url_for('home') }}" class="btn btn-outline-navy btn-lg">
             <i class="bi bi-house me-2"></i>
             <span class="english-text">Back to Home</span>
             <span class="xhosa-text">Buyela Ekhaya</span>
         </a>
+        <button onclick="printBooking()" class="btn btn-forest-green btn-lg ms-2" id="printButton">
+            <i class="bi bi-printer me-2"></i>
+            <span class="english-text">Print Confirmation</span>
+            <span class="xhosa-text">Printa Isiqinisekiso</span>
+        </button>
+        <button onclick="shareBooking()" class="btn btn-outline-primary btn-lg ms-2" id="shareButton">
+            <i class="bi bi-share me-2"></i>
+            <span class="english-text">Share Booking</span>
+            <span class="xhosa-text">Yabelana Ngokubhukisha</span>
+        </button>
     </div>
     
 </div>
@@ -388,16 +688,156 @@
 
 {% block scripts %}
 <script>
-    // Auto-open WhatsApp after 2 seconds (optional - can be removed if not wanted)
-    // setTimeout(() => {
-    //     if (confirm('Would you like to send this booking via WhatsApp now?')) {
-    //         window.open('{{ whatsapp_link }}', '_blank');
-    //     }
-    // }, 2000);
+    // Auto-save booking reference to localStorage
+    document.addEventListener('DOMContentLoaded', function() {
+        const bookingRef = document.querySelector('.ref-value').textContent;
+        const bookingDate = '{{ booking.service_date.strftime("%Y-%m-%d") }}';
+        const serviceName = '{{ service.name }}';
+        const bookingId = '{{ booking.id }}';
+        
+        // Save to localStorage for quick access
+        const bookingData = {
+            reference: bookingRef,
+            date: bookingDate,
+            service: serviceName,
+            bookingId: bookingId,
+            timestamp: new Date().toISOString()
+        };
+        
+        // Save to recent bookings array
+        let recentBookings = JSON.parse(localStorage.getItem('recentBookings') || '[]');
+        
+        // Add current booking if not already in array
+        if (!recentBookings.some(b => b.bookingId === bookingId)) {
+            recentBookings.unshift(bookingData);
+            // Keep only last 5 bookings
+            if (recentBookings.length > 5) {
+                recentBookings = recentBookings.slice(0, 5);
+            }
+            localStorage.setItem('recentBookings', JSON.stringify(recentBookings));
+        }
+        
+        // Also save as last booking
+        localStorage.setItem('lastBooking', JSON.stringify(bookingData));
+        
+        // Add click tracking for contact buttons
+        document.querySelectorAll('.contact-action-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const action = this.classList.contains('whatsapp') ? 'whatsapp' : 
+                              this.classList.contains('phone') ? 'phone' : 'email';
+                console.log(`Contact action: ${action} for booking ${bookingRef}`);
+                
+                // Analytics tracking (if implemented)
+                // ga('send', 'event', 'Booking', 'Contact', action);
+            });
+        });
+        
+        // Auto-scroll to top on page load
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
     
-    // Print functionality (optional)
-    function printBooking() {
-        window.print();
+    // Print functionality with loading state
+    async function printBooking() {
+        const printButton = document.getElementById('printButton');
+        const printLoading = document.getElementById('printLoading');
+        const originalTitle = document.title;
+        
+        try {
+            // Show loading state
+            printButton.disabled = true;
+            printLoading.classList.add('active');
+            
+            // Change title for print
+            document.title = 'Booking Confirmation - ' + document.querySelector('.ref-value').textContent;
+            
+            // Small delay to ensure loading state is visible
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            // Trigger print
+            window.print();
+            
+        } catch (error) {
+            console.error('Print error:', error);
+            alert('Failed to print. Please try using Ctrl+P instead.');
+        } finally {
+            // Restore state
+            document.title = originalTitle;
+            printButton.disabled = false;
+            printLoading.classList.remove('active');
+        }
     }
+    
+    // Share functionality
+    async function shareBooking() {
+        const shareButton = document.getElementById('shareButton');
+        const bookingRef = document.querySelector('.ref-value').textContent;
+        const serviceName = '{{ service.name }}';
+        const bookingDate = '{{ booking.service_date.strftime("%d %B %Y") }}';
+        const companyName = 'Nogidela Holdings';
+        
+        const shareText = `✅ My ${companyName} Booking\n\n` +
+                         `Service: ${serviceName}\n` +
+                         `Date: ${bookingDate}\n` +
+                         `Reference: ${bookingRef}\n\n` +
+                         `Contact: {{ contacts.phone_display }}`;
+        
+        const shareUrl = window.location.href;
+        
+        if (navigator.share) {
+            try {
+                shareButton.disabled = true;
+                await navigator.share({
+                    title: `My ${companyName} Booking`,
+                    text: shareText,
+                    url: shareUrl
+                });
+                console.log('Booking shared successfully');
+            } catch (error) {
+                if (error.name !== 'AbortError') {
+                    console.log('Error sharing:', error);
+                    // Fallback to clipboard
+                    fallbackShare(shareText);
+                }
+            } finally {
+                shareButton.disabled = false;
+            }
+        } else {
+            // Fallback: copy to clipboard
+            fallbackShare(shareText);
+        }
+    }
+    
+    // Fallback share method (copy to clipboard)
+    function fallbackShare(text) {
+        navigator.clipboard.writeText(text)
+            .then(() => {
+                // Show success message
+                const shareButton = document.getElementById('shareButton');
+                const originalHTML = shareButton.innerHTML;
+                
+                shareButton.innerHTML = '<i class="bi bi-check-circle me-2"></i><span class="english-text">Copied!</span><span class="xhosa-text">Kukopishwe!</span>';
+                shareButton.classList.remove('btn-outline-primary');
+                shareButton.classList.add('btn-success');
+                
+                setTimeout(() => {
+                    shareButton.innerHTML = originalHTML;
+                    shareButton.classList.remove('btn-success');
+                    shareButton.classList.add('btn-outline-primary');
+                }, 2000);
+            })
+            .catch(err => {
+                console.error('Failed to copy:', err);
+                alert('Failed to share. Please copy the booking reference manually.');
+            });
+    }
+    
+    // Listen for print events
+    window.addEventListener('beforeprint', () => {
+        document.getElementById('printLoading').classList.remove('active');
+    });
+    
+    window.addEventListener('afterprint', () => {
+        document.getElementById('printButton').disabled = false;
+    });
 </script>
 {% endblock %}

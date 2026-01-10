@@ -220,6 +220,8 @@
         align-items: center;
         justify-content: center;
         gap: 0.5rem;
+        width: 100%;
+        text-decoration: none;
     }
 
     .contact-btn-modern:hover {
@@ -227,6 +229,7 @@
         box-shadow: 0 5px 20px rgba(255,255,255,0.3);
         background: var(--forest-green-light);
         color: white;
+        text-decoration: none;
     }
 
     /* ============ CTA SECTION - ENHANCED ============ */
@@ -275,6 +278,10 @@
             font-size: 0.9rem;
             padding: 0 1.5rem;
         }
+
+        .contact-card-modern {
+            padding: 1.5rem;
+        }
     }
 </style>
 {% endblock %}
@@ -293,8 +300,8 @@
                     </h1>
                     
                     <p class="company-tagline">
-                        <span class="english-text">Your Trusted Partner in Eastern Cape</span>
-                        <span class="xhosa-text">Iqabane Lakho Elithembekileyo eMpuma Koloni</span>
+                        <span class="english-text">Your Trusted Partner in Centane, Eastern Cape</span>
+                        <span class="xhosa-text">Iqabane Lakho Elithembekileyo eCentane, Mpuma Koloni</span>
                     </p>
                     
                     <p class="lead text-white mb-4">
@@ -410,6 +417,13 @@
             <span class="xhosa-text">Ukucoca Isiza</span>
         </div>
         <span class="ticker-separator">•</span>
+        
+        <div class="ticker-item">
+            <i class="bi bi-fire"></i>
+            <span class="english-text">Firewood Delivery</span>
+            <span class="xhosa-text">Iinkuni</span>
+        </div>
+        <span class="ticker-separator">•</span>
 
         <!-- Duplicate set for seamless loop -->
         <div class="ticker-item">
@@ -465,6 +479,13 @@
             <i class="bi bi-tools"></i>
             <span class="english-text">Site Clearance</span>
             <span class="xhosa-text">Ukucoca Isiza</span>
+        </div>
+        <span class="ticker-separator">•</span>
+        
+        <div class="ticker-item">
+            <i class="bi bi-fire"></i>
+            <span class="english-text">Firewood Delivery</span>
+            <span class="xhosa-text">Iinkuni</span>
         </div>
         <span class="ticker-separator">•</span>
     </div>
@@ -632,23 +653,28 @@
                         </p>
                         
                         <div class="d-grid gap-3">
+                            <!-- WhatsApp link -->
                             <a href="https://wa.me/{{ contacts.whatsapp }}?text=Hi%20Nogidela%20Holdings!%20I%20want%20to%20enquire%20about%20your%20services" 
                                class="contact-btn-modern" 
                                target="_blank"
                                rel="noopener noreferrer">
                                 <i class="bi bi-whatsapp"></i>
-                                <span class="english-text">WhatsApp Us</span>
-                                <span class="xhosa-text">WhatsApp Thina</span>
+                                <span class="english-text">WhatsApp Us: {{ contacts.whatsapp[:3] }} {{ contacts.whatsapp[3:6] }} {{ contacts.whatsapp[6:] }}</span>
+                                <span class="xhosa-text">WhatsApp Thina: {{ contacts.whatsapp[:3] }} {{ contacts.whatsapp[3:6] }} {{ contacts.whatsapp[6:] }}</span>
                             </a>
                             
-                            <a href="tel:{{ contacts.phone_display.replace(' ', '') }}" class="contact-btn-modern">
+                            <!-- Phone link -->
+                            <a href="tel:{{ contacts.phone }}" class="contact-btn-modern">
                                 <i class="bi bi-telephone-fill"></i>
-                                {{ contacts.phone_display }}
+                                <span class="english-text">Call Us: {{ contacts.phone_display }}</span>
+                                <span class="xhosa-text">Sitsalele: {{ contacts.phone_display }}</span>
                             </a>
                             
+                            <!-- Email link -->
                             <a href="mailto:{{ contacts.email }}" class="contact-btn-modern">
                                 <i class="bi bi-envelope-fill"></i>
-                                {{ contacts.email }}
+                                <span class="english-text">{{ contacts.email }}</span>
+                                <span class="xhosa-text">{{ contacts.email }}</span>
                             </a>
                         </div>
                     </div>
@@ -659,15 +685,78 @@
 </section>
 
 <!-- ============ CALL TO ACTION - ENHANCED ============ -->
-
+<section class="cta-section py-5 mt-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center cta-content">
+                <h2 class="fw-bold text-white mb-4">
+                    <span class="english-text">Ready to Transform Your Space?</span>
+                    <span class="xhosa-text">Ukulungele Ukuguqula Indawo Yakho?</span>
+                </h2>
+                <p class="lead text-white mb-5">
+                    <span class="english-text">
+                        Whether it's a small garden job or a major construction project, 
+                        we're here to help with professional, reliable service.
+                    </span>
+                    <span class="xhosa-text">
+                        Kube ngumsebenzi wengca omncinci okanye iprojekthi enkulu yokwakha, 
+                        sikulapha ukukunceda ngenkonzo yobugcisa nethembekileyo.
+                    </span>
+                </p>
+                <div class="d-flex gap-3 justify-content-center flex-wrap">
+                    <a href="{{ url_for('services') }}" class="btn btn-light btn-lg">
+                        <i class="bi bi-grid-3x3-gap me-2"></i>
+                        <span class="english-text">View All Services</span>
+                        <span class="xhosa-text">Jonga Zonke Iinkonzo</span>
+                    </a>
+                    <a href="{{ url_for('contact') }}" class="btn btn-outline-light btn-lg">
+                        <i class="bi bi-chat-dots me-2"></i>
+                        <span class="english-text">Get Free Quote</span>
+                        <span class="xhosa-text">Fumana Ixabiso</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
 {% endblock %}
 
 {% block scripts %}
 <script>
     // Add smooth fade-in animation on load
-    window.addEventListener('load', function() {
-        document.querySelector('.fade-in').style.opacity = '1';
+    document.addEventListener('DOMContentLoaded', function() {
+        const fadeElement = document.querySelector('.fade-in');
+        if (fadeElement) {
+            fadeElement.style.opacity = '1';
+        }
+        
+        // Animate stats numbers
+        const stats = document.querySelectorAll('.stat-number');
+        stats.forEach(stat => {
+            const finalValue = stat.textContent;
+            if (finalValue.includes('+')) {
+                const numberPart = finalValue.replace('+', '');
+                if (!isNaN(numberPart)) {
+                    animateValue(stat, 0, parseInt(numberPart), 2000);
+                }
+            }
+        });
     });
+
+    // Number animation function
+    function animateValue(element, start, end, duration) {
+        let startTimestamp = null;
+        const step = (timestamp) => {
+            if (!startTimestamp) startTimestamp = timestamp;
+            const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+            const value = Math.floor(progress * (end - start) + start);
+            element.textContent = value + '+';
+            if (progress < 1) {
+                window.requestAnimationFrame(step);
+            }
+        };
+        window.requestAnimationFrame(step);
+    }
 </script>
 {% endblock %}

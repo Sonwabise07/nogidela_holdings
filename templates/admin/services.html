@@ -3,12 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Services - Admin</title>
+    <title>Manage Services & Prices - Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <style>
-        :root { --navy: #1a3a52; --forest-green: #2d5016; }
-        body { background: #f5f7fa; }
+        :root { 
+            --navy: #1a3a52; 
+            --forest-green: #2d5016; 
+        }
+        
+        body { 
+            background: #f5f7fa; 
+            min-height: 100vh;
+            padding: 20px 0;
+        }
         
         .service-card {
             background: white;
@@ -17,11 +25,6 @@
             margin-bottom: 1rem;
             box-shadow: 0 2px 10px rgba(0,0,0,0.08);
             border-left: 4px solid var(--forest-green);
-        }
-        
-        .service-card.inactive {
-            opacity: 0.6;
-            border-left-color: #dc3545;
         }
         
         .price-input {
@@ -36,20 +39,30 @@
             background: var(--forest-green);
             color: white;
             border: none;
+            padding: 8px 20px;
+            border-radius: 5px;
         }
         
         .btn-update:hover {
             background: #1d3010;
             color: white;
         }
+        
+        .category-header {
+            color: var(--navy);
+            border-bottom: 2px solid var(--forest-green);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
-    <div class="container py-4">
+    <div class="container">
+        <!-- Header -->
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
-                <h2><i class="bi bi-briefcase"></i> Manage Services & Prices</h2>
-                <small class="text-muted">Update prices and toggle service availability</small>
+                <h2><i class="bi bi-currency-dollar"></i> Update Service Prices</h2>
+                <p class="text-muted mb-0">Change prices for meat cutting and equipment hiring services</p>
             </div>
             <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-secondary">
                 <i class="bi bi-arrow-left"></i> Back to Dashboard
@@ -71,16 +84,19 @@
         <!-- MEAT CUTTING SERVICES -->
         {% if 'Meat' in services_by_category %}
         <div class="mb-5">
-            <h4 class="mb-3"><i class="bi bi-scissors text-danger"></i> Meat Cutting Services</h4>
+            <h4 class="category-header">
+                <i class="bi bi-scissors text-danger"></i> Meat Cutting Services
+            </h4>
             {% for service in services_by_category['Meat'] %}
-            <div class="service-card {% if not service.is_active %}inactive{% endif %}">
+            <div class="service-card">
                 <div class="row align-items-center">
                     <div class="col-md-4">
                         <h5 class="mb-1">{{ service.name }}</h5>
                         <small class="text-muted">{{ service.name_xh }}</small>
                     </div>
-                    <div class="col-md-3">
-                        <form method="POST" action="{{ url_for('update_service_price', service_id=service.id) }}" class="d-flex gap-2 align-items-center">
+                    <div class="col-md-4">
+                        <form method="POST" action="{{ url_for('update_service_price', service_id=service.id) }}" 
+                              class="d-flex gap-2 align-items-center">
                             <span class="fw-bold">R</span>
                             <input type="number" 
                                    name="price" 
@@ -94,19 +110,8 @@
                             </button>
                         </form>
                     </div>
-                    <div class="col-md-3">
-                        <span class="text-muted">per {{ service.unit }}</span>
-                    </div>
-                    <div class="col-md-2 text-end">
-                        <form method="POST" action="{{ url_for('toggle_service', service_id=service.id) }}" style="display:inline;">
-                            <button type="submit" class="btn btn-sm {% if service.is_active %}btn-danger{% else %}btn-success{% endif %}">
-                                {% if service.is_active %}
-                                    <i class="bi bi-x-circle"></i> Deactivate
-                                {% else %}
-                                    <i class="bi bi-check-circle"></i> Activate
-                                {% endif %}
-                            </button>
-                        </form>
+                    <div class="col-md-4">
+                        <span class="text-muted">Price per {{ service.unit }}</span>
                     </div>
                 </div>
             </div>
@@ -117,16 +122,19 @@
         <!-- HIRING SERVICES -->
         {% if 'Hiring' in services_by_category %}
         <div class="mb-5">
-            <h4 class="mb-3"><i class="bi bi-truck text-primary"></i> Equipment Hiring</h4>
+            <h4 class="category-header">
+                <i class="bi bi-truck text-primary"></i> Equipment Hiring
+            </h4>
             {% for service in services_by_category['Hiring'] %}
-            <div class="service-card {% if not service.is_active %}inactive{% endif %}">
+            <div class="service-card">
                 <div class="row align-items-center">
                     <div class="col-md-4">
                         <h5 class="mb-1">{{ service.name }}</h5>
                         <small class="text-muted">{{ service.name_xh }}</small>
                     </div>
-                    <div class="col-md-3">
-                        <form method="POST" action="{{ url_for('update_service_price', service_id=service.id) }}" class="d-flex gap-2 align-items-center">
+                    <div class="col-md-4">
+                        <form method="POST" action="{{ url_for('update_service_price', service_id=service.id) }}" 
+                              class="d-flex gap-2 align-items-center">
                             <span class="fw-bold">R</span>
                             <input type="number" 
                                    name="price" 
@@ -140,19 +148,8 @@
                             </button>
                         </form>
                     </div>
-                    <div class="col-md-3">
-                        <span class="text-muted">per {{ service.unit }}</span>
-                    </div>
-                    <div class="col-md-2 text-end">
-                        <form method="POST" action="{{ url_for('toggle_service', service_id=service.id) }}" style="display:inline;">
-                            <button type="submit" class="btn btn-sm {% if service.is_active %}btn-danger{% else %}btn-success{% endif %}">
-                                {% if service.is_active %}
-                                    <i class="bi bi-x-circle"></i> Deactivate
-                                {% else %}
-                                    <i class="bi bi-check-circle"></i> Activate
-                                {% endif %}
-                            </button>
-                        </form>
+                    <div class="col-md-4">
+                        <span class="text-muted">Price per {{ service.unit }}</span>
                     </div>
                 </div>
             </div>
@@ -160,55 +157,24 @@
         </div>
         {% endif %}
 
-        <!-- OTHER SERVICES (Labor, Construction, Trading) -->
-        {% for category in ['Labor', 'Construction', 'Trading'] %}
-            {% if category in services_by_category %}
-            <div class="mb-5">
-                <h4 class="mb-3">
-                    {% if category == 'Labor' %}
-                        <i class="bi bi-tree text-success"></i> Garden & Property
-                    {% elif category == 'Construction' %}
-                        <i class="bi bi-hammer text-warning"></i> Construction
-                    {% else %}
-                        <i class="bi bi-box-seam text-info"></i> Trading
-                    {% endif %}
-                </h4>
-                {% for service in services_by_category[category] %}
-                <div class="service-card {% if not service.is_active %}inactive{% endif %}">
-                    <div class="row align-items-center">
-                        <div class="col-md-4">
-                            <h5 class="mb-1">{{ service.name }}</h5>
-                            <small class="text-muted">{{ service.name_xh }}</small>
-                        </div>
-                        <div class="col-md-6">
-                            <span class="badge bg-secondary">Quote-Based Service</span>
-                            <small class="text-muted d-block mt-1">No fixed price - customers request quotes</small>
-                        </div>
-                        <div class="col-md-2 text-end">
-                            <form method="POST" action="{{ url_for('toggle_service', service_id=service.id) }}" style="display:inline;">
-                                <button type="submit" class="btn btn-sm {% if service.is_active %}btn-danger{% else %}btn-success{% endif %}">
-                                    {% if service.is_active %}
-                                        <i class="bi bi-x-circle"></i> Deactivate
-                                    {% else %}
-                                        <i class="bi bi-check-circle"></i> Activate
-                                    {% endif %}
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-            {% endif %}
-        {% endfor %}
+        <!-- Note about other services -->
+        <div class="alert alert-warning">
+            <h6><i class="bi bi-info-circle"></i> Note about other services:</h6>
+            <p class="mb-0">
+                Garden/Property, Construction, and Trading services are <strong>quote-based</strong> only. 
+                Customers will request quotes via the contact form, and you'll provide prices via phone/email.
+                These services don't have fixed prices in the system.
+            </p>
+        </div>
 
-        <!-- HELP TEXT -->
-        <div class="alert alert-info mt-4">
-            <h6><i class="bi bi-info-circle"></i> Quick Guide:</h6>
+        <!-- Quick Guide -->
+        <div class="alert alert-info">
+            <h6><i class="bi bi-lightbulb"></i> Quick Guide:</h6>
             <ul class="mb-0">
-                <li><strong>Update Price:</strong> Change the number and click "Update"</li>
-                <li><strong>Deactivate:</strong> Service will be hidden from customers</li>
-                <li><strong>Quote-Based Services:</strong> No price shown - customers request custom quotes</li>
+                <li>Enter new price and click "Update" to save changes</li>
+                <li>Changes take effect immediately on the website</li>
+                <li>Prices should include VAT if applicable</li>
+                <li>Round prices to nearest R10 for meat, R100 for equipment</li>
             </ul>
         </div>
     </div>
@@ -228,7 +194,7 @@
             if (form.querySelector('input[name="price"]')) {
                 form.addEventListener('submit', (e) => {
                     const price = form.querySelector('input[name="price"]').value;
-                    if (!confirm(`Confirm price change to R${price}?`)) {
+                    if (!confirm(`Update price to R${price}?`)) {
                         e.preventDefault();
                     }
                 });

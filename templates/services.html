@@ -303,6 +303,71 @@
     }
 
     /* ============================================
+       CONTACT CARDS IN FORMS
+    ============================================ */
+    .contact-action-card {
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        border-radius: 10px;
+        padding: 20px;
+        margin: 20px 0;
+        border-left: 4px solid var(--forest-green);
+    }
+    
+    .contact-action-card h6 {
+        color: var(--navy);
+        margin-bottom: 15px;
+    }
+    
+    .contact-action-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        padding: 12px;
+        border-radius: 8px;
+        text-decoration: none;
+        transition: all var(--transition-speed) ease;
+        margin-bottom: 10px;
+        font-weight: 500;
+    }
+    
+    .contact-action-btn.whatsapp {
+        background: #25D366;
+        color: white;
+        border: none;
+    }
+    
+    .contact-action-btn.whatsapp:hover {
+        background: #128C7E;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
+    }
+    
+    .contact-action-btn.phone {
+        background: var(--navy);
+        color: white;
+        border: none;
+    }
+    
+    .contact-action-btn.phone:hover {
+        background: var(--navy-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(26, 58, 82, 0.3);
+    }
+    
+    .contact-action-btn.email {
+        background: #EA4335;
+        color: white;
+        border: none;
+    }
+    
+    .contact-action-btn.email:hover {
+        background: #D14836;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(234, 67, 53, 0.3);
+    }
+
+    /* ============================================
        MOBILE RESPONSIVE DESIGN
     ============================================ */
     @media (max-width: 768px) {
@@ -405,6 +470,11 @@
             padding: 16px;
             font-size: 1.15rem;
             min-height: 55px;
+        }
+        
+        .contact-action-btn {
+            padding: 15px;
+            font-size: 1.05rem;
         }
 
         /* Card spacing */
@@ -592,6 +662,27 @@
                         <input type="hidden" name="quantity" id="meat-total-qty" value="0">
                         <input type="hidden" name="estimated_cost" id="meat-total-cost" value="0">
                         
+                        <!-- Quick Contact Action -->
+                        <div class="contact-action-card">
+                            <h6 class="fw-bold">
+                                <i class="bi bi-info-circle me-2"></i>
+                                <span class="english-text">Need Help? Contact Us</span>
+                                <span class="xhosa-text">Ufuna Uncedo? Qhagamshelana Nathi</span>
+                            </h6>
+                            <div class="d-grid gap-2">
+                                <a href="tel:{{ contacts.phone }}" class="contact-action-btn phone">
+                                    <i class="bi bi-telephone-fill"></i>
+                                    <span class="english-text">Call: {{ contacts.phone_display }}</span>
+                                    <span class="xhosa-text">Fowuna: {{ contacts.phone_display }}</span>
+                                </a>
+                                <a href="https://wa.me/{{ contacts.whatsapp }}" target="_blank" rel="noopener noreferrer" class="contact-action-btn whatsapp">
+                                    <i class="bi bi-whatsapp"></i>
+                                    <span class="english-text">WhatsApp: {{ contacts.whatsapp[:3] }} {{ contacts.whatsapp[3:6] }} {{ contacts.whatsapp[6:] }}</span>
+                                    <span class="xhosa-text">WhatsApp: {{ contacts.whatsapp[:3] }} {{ contacts.whatsapp[3:6] }} {{ contacts.whatsapp[6:] }}</span>
+                                </a>
+                            </div>
+                        </div>
+                        
                         <div class="info-note">
                             <i class="bi bi-info-circle me-2"></i>
                             <span class="english-text">
@@ -626,13 +717,15 @@
 
     <div class="row g-4 mb-5">
         {% for service in categories['Hiring'] %}
-        <div class="col-lg-6">
+        <div class="col-lg-4 col-md-6">
             <div class="service-card p-4">
                 <div class="img-container">
                     {% if "Fridge" in service.name %}
                         <img src="/static/images/fridge.jpg" alt="{{ service.name }}" loading="lazy">
                     {% elif "Trailer" in service.name %}
                         <img src="/static/images/trailer.jpg" alt="{{ service.name }}" loading="lazy">
+                    {% elif "Firewood" in service.name %}
+                        <img src="/static/images/wood.png" alt="{{ service.name }}" loading="lazy">
                     {% else %}
                         <img src="{{ service.image_url }}" alt="{{ service.name }}" loading="lazy">
                     {% endif %}
@@ -643,10 +736,28 @@
                     <span class="xhosa-text">{{ service.name_xh }}</span>
                 </h4>
                 
+                <!-- Added descriptions for hiring services -->
+                {% if "Fridge" in service.name %}
+                <p class="text-muted mb-3">
+                    <span class="english-text">Large capacity fridge trailers perfect for events, parties, and catering services. Keep your food and drinks fresh and cold.</span>
+                    <span class="xhosa-text">Iitreyila zefriji ezinomthamo omkhulu ezifanelekileyo kwiimicimbi, iipati, neenkonzo zokuceta. Gcina ukutya nezipho zakho zintsha zipholile.</span>
+                </p>
+                {% elif "Trailer" in service.name %}
+                <p class="text-muted mb-3">
+                    <span class="english-text">Heavy-duty trailers for all your transportation needs.</span>
+                    <span class="xhosa-text">Iitreyila ezinamandla kuzo zonke iimfuno zakho zothutho. .</span>
+                </p>
+                {% elif "Firewood" in service.name %}
+                <p class="text-muted mb-3">
+                    <span class="english-text">Quality firewood delivered to your doorstep. Perfect load for a bakkie with guard rails.</span>
+                    <span class="xhosa-text">Iinkuni ezisemgangathweni ezihanjiswe emnyango wakho. Umthamo ofanelekileyo webhakki eneeguard rail.</span>
+                </p>
+                {% else %}
                 <p class="text-muted mb-3">
                     <span class="english-text">{{ service.description }}</span>
                     <span class="xhosa-text">{{ service.description_xh }}</span>
                 </p>
+                {% endif %}
                 
                 <span class="price-badge">R{{ "%.0f"|format(service.price) }} {{ service.unit }}</span>
                 
@@ -688,6 +799,27 @@
                         <input type="tel" name="customer_phone" class="form-control" placeholder="Phone Number | Inombolo Yomnxeba" required pattern="[0-9]{10,15}">
                         <input type="email" name="customer_email" class="form-control" placeholder="Email Address (Optional) | I-imeyili (Ayinyanzelisiyo)">
                         <textarea name="additional_notes" class="form-control" rows="2" placeholder="Any special requests | Naziphi na izicelo"></textarea>
+                        
+                        <!-- Quick Contact Action -->
+                        <div class="contact-action-card">
+                            <h6 class="fw-bold">
+                                <i class="bi bi-question-circle me-2"></i>
+                                <span class="english-text">Questions? Contact Us</span>
+                                <span class="xhosa-text">Imibuzo? Qhagamshelana Nathi</span>
+                            </h6>
+                            <div class="d-grid gap-2">
+                                <a href="tel:{{ contacts.phone }}" class="contact-action-btn phone">
+                                    <i class="bi bi-telephone-fill"></i>
+                                    <span class="english-text">Call: {{ contacts.phone_display }}</span>
+                                    <span class="xhosa-text">Fowuna: {{ contacts.phone_display }}</span>
+                                </a>
+                                <a href="https://wa.me/{{ contacts.whatsapp }}" target="_blank" rel="noopener noreferrer" class="contact-action-btn whatsapp">
+                                    <i class="bi bi-whatsapp"></i>
+                                    <span class="english-text">WhatsApp: {{ contacts.whatsapp[:3] }} {{ contacts.whatsapp[3:6] }} {{ contacts.whatsapp[6:] }}</span>
+                                    <span class="xhosa-text">WhatsApp: {{ contacts.whatsapp[:3] }} {{ contacts.whatsapp[3:6] }} {{ contacts.whatsapp[6:] }}</span>
+                                </a>
+                            </div>
+                        </div>
                         
                         <div class="info-note">
                             <i class="bi bi-info-circle me-2"></i>
@@ -739,10 +871,28 @@
                     <span class="xhosa-text">{{ service.name_xh }}</span>
                 </h5>
                 
+                <!-- Added descriptions for labor services -->
+                {% if "Grass" in service.name %}
+                <p class="text-muted small mb-3">
+                    <span class="english-text">Professional lawn maintenance with quality equipment. We handle residential and commercial properties of all sizes.</span>
+                    <span class="xhosa-text">Ukulondoloza ingca ngobugcisa ngesixhobo esiphucukileyo. Silawula iiproperty zasekhaya nezoshishino ngobukhulu bonke.</span>
+                </p>
+                {% elif "Tree" in service.name %}
+                <p class="text-muted small mb-3">
+                    <span class="english-text">Safe and professional tree removal services. We handle dangerous trees, pruning, and complete tree removal with proper equipment.</span>
+                    <span class="xhosa-text">Iinkonzo zokugawula imithi zokhuseleko nezobugcisa. Sigawula imithi enobungozi, siginise, sigawule imithi ngokupheleleyo ngesixhobo esifanelekileyo.</span>
+                </p>
+                {% elif "Site" in service.name %}
+                <p class="text-muted small mb-3">
+                    <span class="english-text">Complete property clearing and preparation for construction or landscaping. We remove debris, bushes, and prepare your site.</span>
+                    <span class="xhosa-text">Ukucoca indawo nokuyilungiselela ukwakha okanye ukwandla indawo. Sikususa udoti, amahlathi, silungiselele indawo yakho.</span>
+                </p>
+                {% else %}
                 <p class="text-muted small mb-3">
                     <span class="english-text">{{ service.description }}</span>
                     <span class="xhosa-text">{{ service.description_xh }}</span>
                 </p>
+                {% endif %}
                 
                 <span class="price-badge secondary">
                     <span class="english-text">Contact for Quote</span>
@@ -792,6 +942,27 @@
                         <input type="text" name="customer_name" class="form-control" placeholder="Full Name | Igama Elipheleleyo" required>
                         <input type="tel" name="customer_phone" class="form-control" placeholder="Phone Number | Inombolo Yomnxeba" required pattern="[0-9]{10,15}">
                         <input type="email" name="customer_email" class="form-control" placeholder="Email Address (Optional) | I-imeyili (Ayinyanzelisiyo)">
+                        
+                        <!-- Quick Contact Action -->
+                        <div class="contact-action-card">
+                            <h6 class="fw-bold">
+                                <i class="bi bi-telephone-outbound me-2"></i>
+                                <span class="english-text">Prefer to Call?</span>
+                                <span class="xhosa-text">Uyathanda Ukutsalela?</span>
+                            </h6>
+                            <div class="d-grid gap-2">
+                                <a href="tel:{{ contacts.phone }}" class="contact-action-btn phone">
+                                    <i class="bi bi-telephone-fill"></i>
+                                    <span class="english-text">Call: {{ contacts.phone_display }}</span>
+                                    <span class="xhosa-text">Fowuna: {{ contacts.phone_display }}</span>
+                                </a>
+                                <a href="https://wa.me/{{ contacts.whatsapp }}" target="_blank" rel="noopener noreferrer" class="contact-action-btn whatsapp">
+                                    <i class="bi bi-whatsapp"></i>
+                                    <span class="english-text">WhatsApp: {{ contacts.whatsapp[:3] }} {{ contacts.whatsapp[3:6] }} {{ contacts.whatsapp[6:] }}</span>
+                                    <span class="xhosa-text">WhatsApp: {{ contacts.whatsapp[:3] }} {{ contacts.whatsapp[3:6] }} {{ contacts.whatsapp[6:] }}</span>
+                                </a>
+                            </div>
+                        </div>
                         
                         <div class="info-note">
                             <i class="bi bi-info-circle me-2"></i>
@@ -845,13 +1016,26 @@
                 
                 <h4 class="fw-bold text-navy mb-3">
                     <span class="english-text">{{ service.name }}</span>
-                    <span class="xhosa-text">{{ service.name_xh }}</span>
+                                    <span class="xhosa-text">{{ service.name_xh }}</span>
                 </h4>
                 
+                <!-- Added descriptions for construction and trading services -->
+                {% if "Construction" in service.name or service.category == 'Construction' %}
+                <p class="text-muted mb-3">
+                    <span class="english-text">Complete construction services including renovations, building projects, and structural work with quality materials and skilled labor.</span>
+                    <span class="xhosa-text">Iinkonzo zokwakha ezipheleleyo eziquka ukulungisa, amaphrojekthi okwakha, nomsebenzi wezakhiwo ngezinto eziphucukileyo nabasebenzi abanobuchule.</span>
+                </p>
+                {% elif "Trading" in service.name or service.category == 'Trading' %}
+                <p class="text-muted mb-3">
+                    <span class="english-text">General trading services including sourcing of materials, supplies, and goods for various projects and business needs.</span>
+                    <span class="xhosa-text">Iinkonzo zorhwebo ngokubanzi eziquka ukufumana izinto zokwakha, izixhobo, neminyango kumaphrojekthi ahlukahlukeneyo neemfuno zoshishino.</span>
+                </p>
+                {% else %}
                 <p class="text-muted mb-3">
                     <span class="english-text">{{ service.description }}</span>
                     <span class="xhosa-text">{{ service.description_xh }}</span>
                 </p>
+                {% endif %}
                 
                 <span class="price-badge secondary">
                     <span class="english-text">Contact for Quote</span>
@@ -910,6 +1094,27 @@
                         <input type="tel" name="customer_phone" class="form-control" placeholder="Phone Number | Inombolo Yomnxeba" required pattern="[0-9]{10,15}">
                         <input type="email" name="customer_email" class="form-control" placeholder="Email Address (Optional) | I-imeyili (Ayinyanzelisiyo)">
                         
+                        <!-- Quick Contact Action -->
+                        <div class="contact-action-card">
+                            <h6 class="fw-bold">
+                                <i class="bi bi-headset me-2"></i>
+                                <span class="english-text">Discuss Your Project</span>
+                                <span class="xhosa-text">Xoxa Ngeprojekthi Yakho</span>
+                            </h6>
+                            <div class="d-grid gap-2">
+                                <a href="tel:{{ contacts.phone }}" class="contact-action-btn phone">
+                                    <i class="bi bi-telephone-fill"></i>
+                                    <span class="english-text">Call: {{ contacts.phone_display }}</span>
+                                    <span class="xhosa-text">Fowuna: {{ contacts.phone_display }}</span>
+                                </a>
+                                <a href="https://wa.me/{{ contacts.whatsapp }}" target="_blank" rel="noopener noreferrer" class="contact-action-btn whatsapp">
+                                    <i class="bi bi-whatsapp"></i>
+                                    <span class="english-text">WhatsApp: {{ contacts.whatsapp[:3] }} {{ contacts.whatsapp[3:6] }} {{ contacts.whatsapp[6:] }}</span>
+                                    <span class="xhosa-text">WhatsApp: {{ contacts.whatsapp[:3] }} {{ contacts.whatsapp[3:6] }} {{ contacts.whatsapp[6:] }}</span>
+                                </a>
+                            </div>
+                        </div>
+                        
                         <div class="info-note">
                             <i class="bi bi-info-circle me-2"></i>
                             <span class="english-text">We will review your project and provide a detailed quote soon.</span>
@@ -928,6 +1133,42 @@
         {% endfor %}
     </div>
     {% endif %}
+
+    <!-- ============ NEED HELP SECTION ============ -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="card border-0" style="background: linear-gradient(135deg, var(--forest-green), var(--forest-green-dark)); color: white;">
+                <div class="card-body p-5 text-center">
+                    <div class="row align-items-center">
+                        <div class="col-lg-8 text-lg-start">
+                            <h3 class="fw-bold mb-3">
+                                <span class="english-text">Need Help Choosing a Service?</span>
+                                <span class="xhosa-text">Ufuna Uncedo Ekukhetheni Inkonzo?</span>
+                            </h3>
+                            <p class="mb-0">
+                                <span class="english-text">Our team is ready to help you find the perfect service for your needs.</span>
+                                <span class="xhosa-text">Iqela lethu likulungele ukukunceda ukufumana inkonzo epheleleyo kwiimfuno zakho.</span>
+                            </p>
+                        </div>
+                        <div class="col-lg-4 mt-4 mt-lg-0">
+                            <div class="d-grid gap-2">
+                                <a href="tel:{{ contacts.phone }}" class="btn btn-light btn-lg">
+                                    <i class="bi bi-telephone-fill me-2"></i>
+                                    <span class="english-text">Call Us</span>
+                                    <span class="xhosa-text">Sitsalele</span>
+                                </a>
+                                <a href="https://wa.me/{{ contacts.whatsapp }}" target="_blank" rel="noopener noreferrer" class="btn btn-success btn-lg">
+                                    <i class="bi bi-whatsapp me-2"></i>
+                                    <span class="english-text">WhatsApp Us</span>
+                                    <span class="xhosa-text">WhatsApp Thina</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
 </div>
 
@@ -952,6 +1193,7 @@
         initializeMeatCalculator();
         initializeFormHandlers();
         initializeKeyboardShortcuts();
+        setupFormValidation();
     });
 
     // ============================================
@@ -961,6 +1203,10 @@
         const today = new Date().toISOString().split('T')[0];
         document.querySelectorAll('input[type="date"]').forEach(input => {
             input.min = today;
+            // Set placeholder to today's date
+            if (!input.value) {
+                input.value = today;
+            }
         });
     }
 
@@ -993,6 +1239,14 @@
                 form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             }, 100);
         }
+        
+        // Focus on first input when form opens
+        if (isOpening) {
+            setTimeout(() => {
+                const firstInput = form.querySelector('input, select, textarea');
+                if (firstInput) firstInput.focus();
+            }, 300);
+        }
     }
 
     // ============================================
@@ -1003,6 +1257,7 @@
         
         document.querySelectorAll('.meat-quantity').forEach(input => {
             input.addEventListener('input', calculateMeatTotal);
+            input.addEventListener('change', calculateMeatTotal);
         });
     }
 
@@ -1017,7 +1272,7 @@
         // Update display
         const displayElement = document.getElementById('meat-total');
         if (displayElement) {
-            displayElement.textContent = 'R' + total.toLocaleString();
+            displayElement.textContent = 'R' + total.toLocaleString('en-ZA');
         }
         
         // Update hidden fields
@@ -1039,6 +1294,40 @@
     }
 
     // ============================================
+    // FORM VALIDATION
+    // ============================================
+    function setupFormValidation() {
+        // Phone number validation
+        const phoneInputs = document.querySelectorAll('input[type="tel"]');
+        phoneInputs.forEach(input => {
+            input.addEventListener('blur', function() {
+                const phone = this.value.replace(/\D/g, '');
+                if (phone.length < 10 || phone.length > 12) {
+                    this.classList.add('is-invalid');
+                } else {
+                    this.classList.remove('is-invalid');
+                }
+            });
+        });
+        
+        // Date validation
+        const dateInputs = document.querySelectorAll('input[type="date"]');
+        dateInputs.forEach(input => {
+            input.addEventListener('change', function() {
+                const selectedDate = new Date(this.value);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                if (selectedDate < today) {
+                    this.classList.add('is-invalid');
+                } else {
+                    this.classList.remove('is-invalid');
+                }
+            });
+        });
+    }
+
+    // ============================================
     // FORM HANDLERS
     // ============================================
     function initializeFormHandlers() {
@@ -1056,6 +1345,18 @@
                 }
             }
         });
+        
+        // Close form with close button
+        document.querySelectorAll('.close-form-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const formId = this.getAttribute('onclick').match(/'([^']+)'/)[1];
+                const form = document.getElementById(formId);
+                if (form) {
+                    form.classList.remove('active');
+                    document.body.style.overflow = 'auto';
+                }
+            });
+        });
     }
 
     // ============================================
@@ -1070,12 +1371,42 @@
                     document.body.style.overflow = 'auto';
                 });
             }
+            
+            // Submit form with Ctrl+Enter
+            if (e.ctrlKey && e.key === 'Enter') {
+                const activeForm = document.querySelector('.booking-form-container.active');
+                if (activeForm) {
+                    const submitBtn = activeForm.querySelector('.btn-submit-booking');
+                    if (submitBtn) submitBtn.click();
+                }
+            }
         });
     }
 
-    // Make toggleForm available globally for onclick handlers
+    // ============================================
+    // QUANTITY CONTROLS
+    // ============================================
+    function incrementQuantity(inputId) {
+        const input = document.getElementById(inputId);
+        if (input) {
+            input.value = parseInt(input.value) + 1;
+            calculateMeatTotal();
+        }
+    }
+
+    function decrementQuantity(inputId) {
+        const input = document.getElementById(inputId);
+        if (input && parseInt(input.value) > 0) {
+            input.value = parseInt(input.value) - 1;
+            calculateMeatTotal();
+        }
+    }
+
+    // Make functions available globally for onclick handlers
     window.toggleForm = toggleForm;
     window.calculateMeatTotal = calculateMeatTotal;
     window.validateMeatBooking = validateMeatBooking;
+    window.incrementQuantity = incrementQuantity;
+    window.decrementQuantity = decrementQuantity;
 </script>
 {% endblock %}
