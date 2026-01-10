@@ -1,5 +1,5 @@
 # ============ IMPORTS ============
-from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
+from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify, current_app
 from flask_mail import Mail, Message
 from datetime import datetime, date, timedelta
 import os
@@ -15,6 +15,9 @@ import smtplib
 import ssl
 # Database models (imported after app config)
 from models import db, Admin, Service, Booking, ContactMessage
+
+# NEW: Import Resend for Railway email service
+import resend
 
 # ============ INITIALIZATION ============
 load_dotenv()  # Load environment variables
@@ -50,7 +53,15 @@ app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev-secret-key-change-in-pro
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=12)
 
 # ============ EMAIL CONFIGURATION (Railway Optimized) ============
-# Use Gmail SMTP with specific settings for Railway
+# 1. RESEND CONFIGURATION (Primary for Railway)
+RESEND_API_KEY = os.getenv('RESEND_API_KEY')
+if RESEND_API_KEY:
+    resend.api_key = RESEND_API_KEY
+    print("✅ Resend API configured")
+else:
+    print("⚠️  Resend API key not found. Using SMTP fallback.")
+
+# 2. SMTP CONFIGURATION (Fallback for local/dev)
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587  # Use 587 for TLS, NOT 465
 app.config['MAIL_USE_TLS'] = True  # Use TLS, not SSL
@@ -87,6 +98,92 @@ logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     handlers=[logging.StreamHandler(sys.stdout)])
 logger = logging.getLogger(__name__)
+
+# ============ EMAIL CORE FUNCTIONS (WITH RESEND) ============
+def send_email_core(subject, recipient, body_text, from_email=None):
+    """
+    Unified email sending function that tries Resend first, falls back to SMTP
+    """
+    if SKIP_EMAILS:
+        logger.info(f"ℹ️ Skipping email: {subject}")
+        return True, "Emails disabled by configuration"
+    
+    if not from_email:
+        from_email = app.config['MAIL_DEFAULT_SENDER']
+    
+    # Option 1: Try Resend (Recommended for Railway)
+    if RESEND_API_KEY:
+        try:
+            # Extract email from "Name <email>" format if needed
+            if "<" in from_email and ">" in from_email:
+                # Format is "Name <email>", Resend expects separate fields
+                sender_name = from_email.split("<")[0].strip()
+                sender_email = from_email.split("<")[1].replace(">", "").strip()
+                from_resend = f"{sender_name} <{sender_email}>"
+            else:
+                from_resend = from_email
+            
+            response = resend.Emails.send({
+                "from": from_resend,
+                "to": recipient,
+                "subject": subject,
+                "text": body_text,
+                "reply_to": BUSINESS_CONTACTS['email']
+            })
+            logger.info(f"✅ Email sent via Resend to {recipient}")
+            return True, None
+        except Exception as e:
+            logger.warning(f"Resend failed: {str(e)}. Falling back to SMTP...")
+            # Don't return yet, fall through to SMTP
+    
+    # Option 2: Fallback to SMTP (for local/dev)
+    if app.config.get('MAIL_USERNAME') and app.config.get('MAIL_PASSWORD'):
+        try:
+            # Use Flask-Mail for SMTP
+            msg = Message(
+                subject=subject,
+                recipients=[recipient],
+                body=body_text,
+                sender=from_email,
+                charset='utf-8'
+            )
+            mail.send(msg)
+            logger.info(f"✅ Email sent via SMTP to {recipient}")
+            return True, None
+        except Exception as e:
+            error_msg = f"SMTP email failed: {str(e)}"
+            logger.error(f"❌ {error_msg}")
+            return False, error_msg
+    else:
+        error_msg = "Neither Resend nor SMTP configured"
+        logger.error(f"❌ {error_msg}")
+        return False, error_msg
+
+def send_async_email_wrapper(app_obj, subject, recipient, body_text, from_email=None):
+    """
+    Wrapper for async email sending with proper app context
+    """
+    with app_obj.app_context():
+        send_email_core(subject, recipient, body_text, from_email)
+
+def send_email_async(subject, recipient, body_text, from_email=None):
+    """
+    Send email in background thread
+    """
+    if SKIP_EMAILS:
+        logger.info(f"ℹ️ Skipping async email (SKIP_EMAILS=True): {subject}")
+        return
+    
+    try:
+        app_obj = current_app._get_current_object()
+        Thread(
+            target=send_async_email_wrapper,
+            args=(app_obj, subject, recipient, body_text, from_email),
+            daemon=True
+        ).start()
+        logger.info(f"📧 Async email queued: {subject}")
+    except Exception as e:
+        logger.error(f"❌ Failed to queue async email: {str(e)}")
 
 # ============ HELPER FUNCTIONS ============
 def admin_required(f):
@@ -151,11 +248,10 @@ def validate_phone_number(phone):
     
     return None  # Invalid format
 
-# ============ EMAIL FUNCTIONS ============
+# ============ EMAIL FUNCTIONS (UPDATED FOR RESEND) ============
 def send_booking_email(booking, service):
-    """Send booking confirmation email to business owner - Railway Optimized"""
+    """Send booking confirmation email to business owner"""
     
-    # Check if we should skip emails
     if SKIP_EMAILS:
         logger.info(f"ℹ️ Skipping email for Booking #{booking.id} (SKIP_EMAILS=True)")
         return True, "Emails disabled by configuration"
@@ -206,43 +302,22 @@ Nogidela Holdings Automated Booking System
 {BUSINESS_CONTACTS['phone_display']}
 {BUSINESS_CONTACTS['email']}"""
         
-        # Create email message
-        msg = Message(
-            subject=f"🔔 NEW BOOKING: {service.name} - {formatted_date}",
-            recipients=[BUSINESS_CONTACTS['email']],
-            body=body,
-            charset='utf-8'
+        subject = f"🔔 NEW BOOKING: {service.name} - {formatted_date}"
+        
+        # Use unified email function
+        success, error = send_email_core(
+            subject=subject,
+            recipient=BUSINESS_CONTACTS['email'],
+            body_text=body
         )
         
-        # Try direct SMTP connection first (most reliable for Railway)
-        try:
-            # Create SMTP connection with explicit settings
-            context = ssl.create_default_context()
-            
-            # Connect to Gmail SMTP
-            with smtplib.SMTP(app.config['MAIL_SERVER'], app.config['MAIL_PORT'], timeout=15) as server:
-                server.ehlo()
-                server.starttls(context=context)
-                server.ehlo()
-                server.login(app.config['MAIL_USERNAME'], app.config['MAIL_PASSWORD'])
-                server.send_message(msg)
-            
-            logger.info(f"✅ Email sent via direct SMTP for Booking #{booking.id}")
-            return True, None
-            
-        except Exception as smtp_error:
-            logger.warning(f"Direct SMTP failed, trying Flask-Mail: {smtp_error}")
-            
-            # Fallback to Flask-Mail
-            try:
-                mail.send(msg)
-                logger.info(f"✅ Email sent via Flask-Mail for Booking #{booking.id}")
-                return True, None
-            except Exception as flask_mail_error:
-                error_msg = f"Flask-Mail also failed: {flask_mail_error}"
-                logger.error(f"❌ {error_msg}")
-                return False, error_msg
-            
+        if success:
+            logger.info(f"✅ Booking email sent for Booking #{booking.id}")
+        else:
+            logger.error(f"❌ Booking email failed for Booking #{booking.id}: {error}")
+        
+        return success, error
+        
     except Exception as e:
         error_msg = f"Email sending failed: {str(e)}"
         logger.error(f"❌ {error_msg}")
@@ -251,7 +326,6 @@ Nogidela Holdings Automated Booking System
 def send_contact_email(contact_message):
     """Send contact form message to business owner"""
     
-    # Check if we should skip emails
     if SKIP_EMAILS:
         logger.info(f"ℹ️ Skipping contact email for Message #{contact_message.id} (SKIP_EMAILS=True)")
         return True, "Emails disabled by configuration"
@@ -281,38 +355,21 @@ Nogidela Holdings Contact Form
 {BUSINESS_CONTACTS['phone_display']}
 {BUSINESS_CONTACTS['email']}"""
         
-        msg = Message(
-            subject=f"📧 Contact Form: {contact_message.subject}",
-            recipients=[BUSINESS_CONTACTS['email']],
-            body=body,
-            charset='utf-8'
+        subject = f"📧 Contact Form: {contact_message.subject}"
+        
+        # Use unified email function
+        success, error = send_email_core(
+            subject=subject,
+            recipient=BUSINESS_CONTACTS['email'],
+            body_text=body
         )
         
-        # Try direct SMTP first
-        try:
-            context = ssl.create_default_context()
-            
-            with smtplib.SMTP(app.config['MAIL_SERVER'], app.config['MAIL_PORT'], timeout=15) as server:
-                server.ehlo()
-                server.starttls(context=context)
-                server.ehlo()
-                server.login(app.config['MAIL_USERNAME'], app.config['MAIL_PASSWORD'])
-                server.send_message(msg)
-            
-            logger.info(f"✅ Contact email sent via direct SMTP for Message #{contact_message.id}")
-            return True, None
-            
-        except Exception as smtp_error:
-            logger.warning(f"Direct SMTP failed, trying Flask-Mail: {smtp_error}")
-            
-            try:
-                mail.send(msg)
-                logger.info(f"✅ Contact email sent via Flask-Mail for Message #{contact_message.id}")
-                return True, None
-            except Exception as flask_mail_error:
-                error_msg = f"Contact email failed: {flask_mail_error}"
-                logger.error(f"❌ {error_msg}")
-                return False, error_msg
+        if success:
+            logger.info(f"✅ Contact email sent for Message #{contact_message.id}")
+        else:
+            logger.error(f"❌ Contact email failed for Message #{contact_message.id}: {error}")
+        
+        return success, error
         
     except Exception as e:
         error_msg = f"Contact email failed: {str(e)}"
@@ -324,7 +381,6 @@ def send_customer_confirmation_email(booking, service):
     if not booking.client_email:
         return False, "No customer email provided"
     
-    # Check if we should skip emails
     if SKIP_EMAILS:
         logger.info(f"ℹ️ Skipping customer email for Booking #{booking.id} (SKIP_EMAILS=True)")
         return True, "Emails disabled by configuration"
@@ -357,70 +413,23 @@ Nogidela Holdings (PTY) LTD
 Professional Services in Eastern Cape
 {BUSINESS_CONTACTS['address']}"""
         
-        msg = Message(
-            subject="✅ Booking Confirmation - Nogidela Holdings",
-            recipients=[booking.client_email],
-            body=body,
-            charset='utf-8'
+        subject = "✅ Booking Confirmation - Nogidela Holdings"
+        
+        # Send asynchronously in background
+        send_email_async(
+            subject=subject,
+            recipient=booking.client_email,
+            body_text=body
         )
         
-        # Try direct SMTP first
-        try:
-            context = ssl.create_default_context()
-            
-            with smtplib.SMTP(app.config['MAIL_SERVER'], app.config['MAIL_PORT'], timeout=15) as server:
-                server.ehlo()
-                server.starttls(context=context)
-                server.ehlo()
-                server.login(app.config['MAIL_USERNAME'], app.config['MAIL_PASSWORD'])
-                server.send_message(msg)
-            
-            logger.info(f"✅ Customer confirmation sent via direct SMTP to {booking.client_email}")
-            return True, None
-            
-        except Exception as smtp_error:
-            logger.warning(f"Direct SMTP failed for customer email, trying Flask-Mail: {smtp_error}")
-            
-            try:
-                mail.send(msg)
-                logger.info(f"✅ Customer confirmation sent via Flask-Mail to {booking.client_email}")
-                return True, None
-            except Exception as flask_mail_error:
-                error_msg = f"Customer email failed: {flask_mail_error}"
-                logger.error(f"❌ {error_msg}")
-                return False, error_msg
+        logger.info(f"✅ Customer confirmation queued for {booking.client_email}")
+        return True, None
         
     except Exception as e:
         error_msg = f"Customer email failed: {str(e)}"
         logger.error(f"❌ {error_msg}")
         return False, error_msg
 
-# ============ ASYNC EMAIL HELPER ============
-def send_async_email(app, msg):
-    """Send email in background thread with timeout"""
-    with app.app_context():
-        try:
-            context = ssl.create_default_context()
-            
-            # Use direct SMTP in background
-            with smtplib.SMTP(app.config['MAIL_SERVER'], app.config['MAIL_PORT'], timeout=15) as server:
-                server.ehlo()
-                server.starttls(context=context)
-                server.ehlo()
-                server.login(app.config['MAIL_USERNAME'], app.config['MAIL_PASSWORD'])
-                server.send_message(msg)
-            
-            logger.info(f"✅ Background email sent: {msg.subject}")
-        except Exception as e:
-            logger.error(f"❌ Background email failed: {str(e)}")
-
-def send_email_async(msg):
-    """Queue email for background sending"""
-    if not SKIP_EMAILS:
-        Thread(target=send_async_email, args=(app._get_current_object(), msg), daemon=True).start()
-    else:
-        logger.info(f"ℹ️ Skipping async email (SKIP_EMAILS=True): {msg.subject}")
-    
 # ============ DATABASE INITIALIZATION ============
 def init_database():
     """Initialize database with admin and seed services only in development"""
@@ -519,7 +528,8 @@ def health_check():
     return jsonify({
         'status': 'healthy',
         'timestamp': datetime.now().isoformat(),
-        'service': 'Nogidela Holdings Booking System'
+        'service': 'Nogidela Holdings Booking System',
+        'email_provider': 'Resend' if RESEND_API_KEY else 'SMTP (fallback)'
     }), 200
 
 @app.route('/healthz')
@@ -527,60 +537,95 @@ def healthz():
     """Kubernetes-style health check"""
     return '', 200
 
-# ============ EMAIL TEST ENDPOINT ============
+# ============ EMAIL TEST ENDPOINT (UPDATED FOR RESEND) ============
 @app.route('/test-email')
 def test_email():
     """Test email configuration endpoint"""
-    try:
-        # Test connection to SMTP server
-        context = ssl.create_default_context()
-        
-        with smtplib.SMTP(app.config['MAIL_SERVER'], app.config['MAIL_PORT'], timeout=10) as server:
-            server.ehlo()
-            server.starttls(context=context)
-            server.ehlo()
-            server.login(app.config['MAIL_USERNAME'], app.config['MAIL_PASSWORD'])
-            
-            # Send a test email
-            test_msg = Message(
-                subject="✅ Email Test from Railway",
-                recipients=[BUSINESS_CONTACTS['email']],
-                body="This is a test email from your Railway deployment. If you receive this, emails are working correctly!"
-            )
-            
-            server.send_message(test_msg)
-        
+    if SKIP_EMAILS:
         return '''
         <!DOCTYPE html>
         <html>
-        <head><title>Email Test Successful</title></head>
+        <head><title>Email Test Skipped</title></head>
         <body style="text-align: center; padding: 50px; font-family: Arial;">
-            <h1 style="color: green;">✅ Email Test Successful!</h1>
-            <p>A test email has been sent to: {}</p>
+            <h1 style="color: orange;">⚠️ Email Test Skipped</h1>
+            <p>Emails are disabled (SKIP_EMAILS=True).</p>
             <p><a href="/">← Go Home</a></p>
         </body>
         </html>
-        '''.format(BUSINESS_CONTACTS['email'])
-        
+        '''
+    
+    test_subject = "✅ Email Test from Railway"
+    test_body = "This is a test email from your Railway deployment. If you receive this, emails are working correctly!"
+    
+    try:
+        if RESEND_API_KEY:
+            # Test Resend
+            success, error = send_email_core(
+                subject=test_subject,
+                recipient=BUSINESS_CONTACTS['email'],
+                body_text=test_body
+            )
+            
+            if success:
+                return f'''
+                <!DOCTYPE html>
+                <html>
+                <head><title>Email Test Successful</title></head>
+                <body style="text-align: center; padding: 50px; font-family: Arial;">
+                    <h1 style="color: green;">✅ Email Test Successful!</h1>
+                    <p>A test email has been sent via <strong>Resend</strong> to: {BUSINESS_CONTACTS['email']}</p>
+                    <p><a href="/">← Go Home</a></p>
+                </body>
+                </html>
+                '''
+            else:
+                raise Exception(f"Resend failed: {error}")
+        else:
+            # Test SMTP
+            success, error = send_email_core(
+                subject=test_subject,
+                recipient=BUSINESS_CONTACTS['email'],
+                body_text=test_body
+            )
+            
+            if success:
+                return f'''
+                <!DOCTYPE html>
+                <html>
+                <head><title>Email Test Successful</title></head>
+                <body style="text-align: center; padding: 50px; font-family: Arial;">
+                    <h1 style="color: green;">✅ Email Test Successful!</h1>
+                    <p>A test email has been sent via <strong>SMTP</strong> to: {BUSINESS_CONTACTS['email']}</p>
+                    <p><a href="/">← Go Home</a></p>
+                </body>
+                </html>
+                '''
+            else:
+                raise Exception(f"SMTP failed: {error}")
+                
     except Exception as e:
-        return '''
+        return f'''
         <!DOCTYPE html>
         <html>
         <head><title>Email Test Failed</title></head>
         <body style="text-align: center; padding: 50px; font-family: Arial;">
             <h1 style="color: red;">❌ Email Test Failed</h1>
-            <p><strong>Error:</strong> {}</p>
+            <p><strong>Error:</strong> {str(e)}</p>
             <p>Please check your email configuration in Railway environment variables.</p>
-            <p><strong>Required variables:</strong></p>
+            <p><strong>For Resend (Recommended on Railway):</strong></p>
+            <ul style="text-align: left; display: inline-block;">
+                <li>RESEND_API_KEY (Your Resend API key)</li>
+                <li>MAIL_DEFAULT_SENDER (Verified email in Resend, e.g., noreply@yourdomain.com)</li>
+            </ul>
+            <p><strong>For SMTP Fallback:</strong></p>
             <ul style="text-align: left; display: inline-block;">
                 <li>MAIL_USERNAME (Gmail address)</li>
-                <li>MAIL_PASSWORD (Gmail App Password - NOT regular password)</li>
-                <li>MAIL_DEFAULT_SENDER (Optional)</li>
+                <li>MAIL_PASSWORD (Gmail App Password)</li>
             </ul>
             <p><a href="/">← Go Home</a></p>
         </body>
         </html>
-        '''.format(str(e)), 500
+        ''', 500
 
 # ============ PUBLIC ROUTES ============
 @app.route('/')
@@ -658,15 +703,12 @@ def booking_step1(service_id):
             email_error = None
             
             try:
+                # Send to business owner (sync - important to know if it worked)
                 email_success, email_error = send_booking_email(booking, service)
                 
                 # Send customer confirmation in background (if business email succeeded)
                 if email_success and booking.client_email:
-                    # Use thread to avoid blocking
-                    Thread(
-                        target=lambda: send_customer_confirmation_email(booking, service),
-                        daemon=True
-                    ).start()
+                    send_customer_confirmation_email(booking, service)
                 else:
                     logger.warning(f"Not sending customer confirmation: {email_error}")
                     
@@ -1160,13 +1202,15 @@ if __name__ == '__main__':
     
     # Check email configuration
     print("\n📧 Email Configuration:")
-    if app.config.get('MAIL_USERNAME') and app.config.get('MAIL_PASSWORD'):
-        print(f"   ✅ Email configured: {app.config['MAIL_USERNAME'][:10]}...")
-        print(f"   ✅ Mail server: {app.config['MAIL_SERVER']}:{app.config['MAIL_PORT']}")
-        print(f"   ✅ Use TLS: {app.config['MAIL_USE_TLS']}")
+    if RESEND_API_KEY:
+        print(f"   ✅ Resend configured (Railway optimized)")
+        print(f"   ✅ Using Resend API for email delivery")
+    elif app.config.get('MAIL_USERNAME') and app.config.get('MAIL_PASSWORD'):
+        print(f"   ⚠️  SMTP fallback configured: {app.config['MAIL_USERNAME'][:10]}...")
+        print(f"   ⚠️  Note: SMTP may be blocked on Railway free tier")
     else:
-        print("   ⚠️  WARNING: Email not configured! Booking emails will not be sent")
-        print("   ℹ️  Set MAIL_USERNAME and MAIL_PASSWORD environment variables")
+        print("   ⚠️  WARNING: No email configuration found!")
+        print("   ℹ️  Set RESEND_API_KEY for Railway or MAIL_USERNAME/MAIL_PASSWORD for local")
     
     # Check feature flags
     print("\n⚙️ Feature Flags:")
