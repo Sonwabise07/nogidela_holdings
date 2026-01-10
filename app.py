@@ -378,6 +378,12 @@ def inject_globals():
         'env': os.getenv('FLASK_ENV', 'development')
     }
 
+# ============ FAVICON FIX ============
+@app.route('/favicon.ico')
+def favicon():
+    """Handle favicon requests to prevent 404 errors"""
+    return '', 204  # Return "No Content" status
+
 # ============ HEALTH CHECK ENDPOINT ============
 @app.route('/health')
 def health_check():
@@ -879,15 +885,62 @@ def api_service_detail(service_id):
         'description': service.description, 'requires_quantity': service.requires_quantity
     })
 
-# ============ ERROR HANDLERS ============
+# ============ SIMPLE ERROR HANDLERS (NO TEMPLATES NEEDED) ============
 @app.errorhandler(404)
 def not_found(e):
-    return render_template('errors/404.html'), 404
+    """Simple 404 error handler - no template needed"""
+    logger.warning(f"404 Not Found: {request.path}")
+    return f'''
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>404 - Page Not Found</title>
+        <style>
+            body {{ font-family: Arial, sans-serif; text-align: center; padding: 50px; background: #f8f9fa; }}
+            h1 {{ color: #dc3545; }}
+            a {{ color: #007bff; text-decoration: none; }}
+            a:hover {{ text-decoration: underline; }}
+        </style>
+    </head>
+    <body>
+        <h1>404 - Page Not Found</h1>
+        <p>The page you're looking for doesn't exist.</p>
+        <p><a href="/">← Go Home</a></p>
+        <p style="font-size: 12px; color: #666; margin-top: 30px;">
+            Requested URL: {request.path}<br>
+            Nogidela Holdings Booking System
+        </p>
+    </body>
+    </html>
+    ''', 404
 
 @app.errorhandler(500)
 def server_error(e):
-    logger.error(f"500 Error: {e}")
-    return render_template('errors/500.html'), 500
+    """Simple 500 error handler - no template needed"""
+    logger.error(f"500 Internal Server Error: {e}")
+    return f'''
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>500 - Server Error</title>
+        <style>
+            body {{ font-family: Arial, sans-serif; text-align: center; padding: 50px; background: #f8f9fa; }}
+            h1 {{ color: #dc3545; }}
+            a {{ color: #007bff; text-decoration: none; }}
+            a:hover {{ text-decoration: underline; }}
+        </style>
+    </head>
+    <body>
+        <h1>500 - Internal Server Error</h1>
+        <p>Something went wrong on our end. Please try again later.</p>
+        <p><a href="/">← Go Home</a> | <a href="javascript:location.reload()">🔄 Try Again</a></p>
+        <p style="font-size: 12px; color: #666; margin-top: 30px;">
+            Error Reference: {datetime.now().timestamp()}<br>
+            Nogidela Holdings Booking System
+        </p>
+    </body>
+    </html>
+    ''', 500
 
 # ============ APP RUNNER ============
 if __name__ == '__main__':
