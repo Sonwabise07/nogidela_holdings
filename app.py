@@ -8,6 +8,7 @@ from functools import wraps
 from urllib.parse import quote
 from dotenv import load_dotenv
 from werkzeug.security import generate_password_hash
+from pathlib import Path
 
 # Database models (imported after app config)
 from models import db, Admin, Service, Booking, ContactMessage
@@ -18,12 +19,45 @@ load_dotenv()  # Load environment variables
 app = Flask(__name__)
 
 # ============ CONFIGURATION ============
-# Database
-database_url = os.getenv('DATABASE_URL', 'sqlite:///nogidela.db')
+# Database Configuration - Railway Volume Support
+# Check if running on Railway (use persistent volume)
+if os.environ.get("RAILWAY_ENVIRONMENT") or os.environ.get("RAILWAY_STATIC_URL"):
+    # On Railway - use persistent volume at /data
+    db_dir = Path("/data")
+    db_dir.mkdir(exist_ok=True)  # Create directory if it doesn't exist
+    db_path = db_dir / "nogidela.db"
+    database_url = f"sqlite:///{db_path}"
+    print(f"🚂 Railway Environment Detected")
+    print(f"📁 Database path: {db_path}")
+else:
+    # Local development or other platforms
+    database_url = os.getenv('DATABASE_URL', 'sqlite:///nogidela.db')
+    print(f"💻 Local Development Environment")
+    print(f"📁 Database: {database_url}")
 
-# Fix for PostgreSQL URLs (SQLAlchemy 1.4+ requires 'postgresql://' not 'postgres://')
+# Fix for PostgreSQL URLs (if you ever switch to PostgreSQL)
 if database_url and database_url.startswith("postgres://"):
     database_url = database_url.replace("postgres://", "postgresql://", 1)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = database_url
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev-secret-key-change-in-production')
+
+# Session Management (12-hour timeout)
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=12)
+
+# Email Configuration
+app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER', 'smtp.gmail.com')
+app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT', 587))
+app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS', 'True') == 'True'
+app.config['MAIL_USE_SSL'] = os.getenv('MAIL_USE_SSL', 'False') == 'True'
+app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
+app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER', 'Nogidela Holdings <noreply@nogidelaholdings.co.za>')
+
+# Initialize Extensions
+mail = Mail(app)
+db.init_app(app)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
