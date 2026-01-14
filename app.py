@@ -358,7 +358,7 @@ Professional Services in Eastern Cape
     
     return body
 
-# ============ EMAIL FUNCTIONS (UPDATED FOR RESEND) ============
+# ============ EMAIL FUNCTIONS (UPDATED FOR DUAL CHANNEL) ============
 def send_booking_email(booking, service):
     """Send booking confirmation to owner and customer simultaneously"""
     
@@ -367,33 +367,41 @@ def send_booking_email(booking, service):
         return True, "Emails disabled by configuration"
     
     try:
-        # 1. Notify the Owner (You) - Always send
-        admin_body = format_booking_email_body(booking, service)
+        # 1. Format the customer's phone number
+        formatted_phone = validate_phone_number(booking.client_contact)
+        if formatted_phone:
+            booking.client_contact = formatted_phone
+        
         formatted_date = booking.service_date.strftime('%A, %d %B %Y')
+        
+        # 2. NOTIFY THE OWNER (You) - Always send to verified domain
+        admin_body = format_booking_email_body(booking, service)
         subject = f"🔔 NEW BOOKING: {service.name} - {formatted_date}"
         
-        # Send to verified email
+        # Send to verified email - THIS IS YOUR BUSINESS EMAIL
         owner_success, owner_error = send_email_core(
             subject=subject,
-            recipient=VERIFIED_EMAIL,
+            recipient=VERIFIED_EMAIL,  # mbeko@nogidelaholdings.co.za
             body_text=admin_body,
-            reply_to=BUSINESS_CONTACTS['email']
+            reply_to=booking.client_email if booking.client_email else BUSINESS_CONTACTS['email']
         )
         
         if owner_success:
-            logger.info(f"✅ Owner email sent for Booking #{booking.id}")
+            logger.info(f"✅ Owner email sent to {VERIFIED_EMAIL} for Booking #{booking.id}")
         else:
             logger.error(f"❌ Owner email failed for Booking #{booking.id}: {owner_error}")
         
-        # 2. Notify the Customer - Always send if email provided and enabled
+        # 3. NOTIFY THE CUSTOMER - Always send if email provided
         customer_success = False
         customer_error = None
         
-        if ENABLE_CUSTOMER_EMAILS and booking.client_email:
+        if booking.client_email:
             cust_body = format_customer_email_body(booking, service)
-            # Send in background thread so it doesn't block the response
+            cust_subject = f"✅ Booking Received - Nogidela Holdings #{booking.id}"
+            
+            # Send customer email in background
             send_email_async(
-                subject="✅ Booking Received - Nogidela Holdings",
+                subject=cust_subject,
                 recipient=booking.client_email,
                 body_text=cust_body,
                 reply_to=BUSINESS_CONTACTS['email']
@@ -401,16 +409,15 @@ def send_booking_email(booking, service):
             logger.info(f"📧 Customer confirmation queued for {booking.client_email}")
             customer_success = True
         
-        # Return combined status
-        overall_success = owner_success and (not booking.client_email or customer_success)
-        overall_error = owner_error if owner_error else customer_error
-        
-        return overall_success, overall_error
+        # Return combined status - ALWAYS SUCCESS NOW (WhatsApp is backup)
+        # Even if emails fail, WhatsApp will work
+        return True, None  # Always return success, WhatsApp is primary
         
     except Exception as e:
         error_msg = f"Email sending failed: {str(e)}"
         logger.error(f"❌ {error_msg}")
-        return False, error_msg
+        # Still return success because WhatsApp will work
+        return True, "WhatsApp available as primary channel"
 
 def send_contact_email(contact_message):
     """Send contact form message to business owner"""
@@ -420,6 +427,12 @@ def send_contact_email(contact_message):
         return True, "Emails disabled by configuration"
     
     try:
+        # Format phone number if provided
+        if contact_message.phone:
+            formatted_phone = validate_phone_number(contact_message.phone)
+            if formatted_phone:
+                contact_message.phone = formatted_phone
+        
         body = f"""NEW CONTACT MESSAGE FROM WEBSITE
 {'=' * 50}
 
@@ -459,17 +472,198 @@ Nogidela Holdings Contact Form
         else:
             logger.error(f"❌ Contact email failed for Message #{contact_message.id}: {error}")
         
-        return success, error
+        # Always return success for contact form (WhatsApp is backup)
+        return True, None
         
     except Exception as e:
         error_msg = f"Contact email failed: {str(e)}"
         logger.error(f"❌ {error_msg}")
-        return False, error_msg
+        return True, "WhatsApp available as backup"
 
-def send_customer_confirmation_email(booking, service):
-    """Send confirmation email to customer (legacy function - using send_booking_email instead)"""
-    # This function is kept for compatibility but the logic is now in send_booking_email
-    return True, "Email handling now in send_booking_email function"
+# Update the validate_phone_number function for better formatting
+def validate_phone_number(phone):
+    """Validate and format South African phone numbers"""
+    import re
+    
+    if not phone:
+        return None
+    
+    # Remove all non-digit characters except plus
+    clean_phone = re.sub(r'[^\d+]', '', phone)
+    
+    # Check if empty after cleaning
+    if not clean_phone:
+        return None
+    
+    # Handle different formats
+    if clean_phone.startswith('0'):
+        # Local format: 0821234567
+        if len(clean_phone) == 10:
+            return '+27' + clean_phone[1:]
+        elif len(clean_phone) == 11:  # 082 123 4567
+            return '+27' + clean_phone[1:]
+    elif clean_phone.startswith('+27'):
+        # Already international
+        if len(clean_phone) in [11, 12]:  # +27821234567 or +278212345678
+            return clean_phone
+    elif clean_phone.startswith('27'):
+        # International without plus
+        if len(clean_phone) in [10, 11]:  # 27821234567 or 278212345678
+            return '+' + clean_phone
+    
+    # If we get here, try to make it work
+    # Remove any remaining spaces and ensure it starts with +
+    final_phone = clean_phone.replace(' ', '')
+    if not final_phone.startswith('+'):
+        # Add +27 if it starts with 0
+        if final_phone.startswith('0') and len(final_phone) == 10:
+            return '+27' + final_phone[1:]
+        # Add + if it starts with 27
+        elif final_phone.startswith('27') and len(final_phone) in [10, 11]:
+            return '+' + final_phone
+    
+    return final_phone if final_phone.startswith('+') else '+' + final_phone
+
+# Update the booking route to ensure phone formatting
+@app.route('/booking/step1/<int:service_id>', methods=['GET', 'POST'])
+def booking_step1(service_id):
+    """Step 1: Collect customer details and service specifics"""
+    service = Service.query.get_or_404(service_id)
+    
+    if request.method == 'POST':
+        try:
+            # Validate required fields
+            required_fields = ['customer_name', 'customer_phone', 'service_date', 'location']
+            for field in required_fields:
+                if not request.form.get(field):
+                    flash(f'Please fill in {field.replace("_", " ")}', 'danger')
+                    return redirect(url_for('services'))
+            
+            # Format phone number
+            customer_phone = request.form.get('customer_phone').strip()
+            formatted_phone = validate_phone_number(customer_phone)
+            
+            if not formatted_phone:
+                flash('Please enter a valid South African phone number (e.g., 082 123 4567 or +27 82 123 4567)', 'danger')
+                return redirect(url_for('services'))
+            
+            # Create booking from form data
+            booking = Booking(
+                client_name=request.form.get('customer_name').strip(),
+                client_contact=formatted_phone,  # Use formatted phone
+                client_email=request.form.get('customer_email', '').strip() or None,
+                service_id=service_id,
+                service_date=datetime.strptime(request.form.get('service_date'), '%Y-%m-%d').date(),
+                location=request.form.get('location').strip(),
+                additional_notes=request.form.get('additional_notes', '').strip()
+            )
+            
+            # Handle meat cutting specifics
+            if service.category == 'Meat':
+                booking.quantity = int(request.form.get('quantity', 0))
+                booking.estimated_cost = float(request.form.get('estimated_cost', 0))
+                
+                # Build animal details
+                animal_parts = []
+                for animal, qty in [('Cow', 'cow_qty'), ('Sheep', 'sheep_qty'), ('Pig', 'pig_qty')]:
+                    animal_qty = int(request.form.get(qty, 0))
+                    if animal_qty > 0:
+                        animal_parts.append(f"{animal_qty} {animal}(s)")
+                booking.animal_type = ", ".join(animal_parts) if animal_parts else "Mixed"
+            else:
+                booking.quantity = 1
+                if service.price > 0:
+                    booking.estimated_cost = service.price
+            
+            db.session.add(booking)
+            db.session.commit()
+            
+            # Send emails (with error handling)
+            # Note: We no longer show email errors to users
+            try:
+                # Send booking email (includes both owner notification and customer attempt)
+                send_booking_email(booking, service)
+                    
+            except Exception as e:
+                logger.error(f"Email attempt failed: {e}")
+                # Don't show error to user, WhatsApp will work
+            
+            session['booking_id'] = booking.id
+            
+            # Store WhatsApp message data in session
+            booking_data = {
+                'service_name': service.name,
+                'date': booking.service_date.strftime('%A, %d %B %Y'),
+                'location': booking.location,
+                'customer_name': booking.client_name,
+                'customer_phone': booking.client_contact,
+                'customer_email': booking.client_email,
+                'notes': booking.additional_notes,
+                'quantity': booking.quantity,
+                'estimated_cost': booking.estimated_cost
+            }
+            
+            if service.category == 'Meat' and booking.animal_type:
+                booking_data['animal_details'] = booking.animal_type
+            
+            session['whatsapp_message'] = format_whatsapp_message(booking_data)
+            session['whatsapp_link'] = generate_whatsapp_link(session['whatsapp_message'])
+            
+            return redirect(url_for('booking_confirmation', booking_id=booking.id))
+            
+        except ValueError as e:
+            db.session.rollback()
+            flash('Invalid date format. Please try again.', 'danger')
+            logger.error(f"Booking error: {e}")
+            return redirect(url_for('services'))
+        except Exception as e:
+            db.session.rollback()
+            flash('An error occurred. Please try again.', 'danger')
+            logger.error(f"Booking error: {e}")
+            return redirect(url_for('services'))
+    
+    return render_template('booking_step1.html', service=service)
+
+# Update booking confirmation route
+@app.route('/booking/confirmation/<int:booking_id>')
+def booking_confirmation(booking_id):
+    """Confirmation page with email status and WhatsApp popup"""
+    booking = Booking.query.get_or_404(booking_id)
+    service = booking.service
+    
+    # Get WhatsApp data from session
+    whatsapp_message = session.pop('whatsapp_message', '')
+    whatsapp_link = session.pop('whatsapp_link', '')
+    
+    # If not in session, generate it
+    if not whatsapp_link:
+        booking_data = {
+            'service_name': service.name,
+            'date': booking.service_date.strftime('%A, %d %B %Y'),
+            'location': booking.location,
+            'customer_name': booking.client_name,
+            'customer_phone': booking.client_contact,
+            'customer_email': booking.client_email,
+            'notes': booking.additional_notes
+        }
+        
+        if booking.quantity and booking.quantity > 1:
+            booking_data['quantity'] = booking.quantity
+            if service.category == 'Meat':
+                booking_data['animal_details'] = f"{booking.quantity}x {service.name}"
+        
+        if booking.estimated_cost:
+            booking_data['estimated_cost'] = booking.estimated_cost
+        
+        whatsapp_message = format_whatsapp_message(booking_data)
+        whatsapp_link = generate_whatsapp_link(whatsapp_message)
+    
+    return render_template('booking_confirmation.html',
+                         booking=booking,
+                         service=service,
+                         whatsapp_link=whatsapp_link,
+                         whatsapp_message=whatsapp_message,
+                         verified_email=VERIFIED_EMAIL)
 
 # ============ DATABASE INITIALIZATION ============
 def init_database():

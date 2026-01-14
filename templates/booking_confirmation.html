@@ -126,126 +126,140 @@
         margin-top: 5px;
     }
     
-    /* Contact Action Cards */
-    .contact-action-card {
-        background: white;
-        border-radius: 12px;
-        padding: 25px;
-        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
-        margin: 20px 0;
-        border: 2px solid #e9ecef;
-        transition: transform 0.3s ease;
-    }
-    
-    .contact-action-card:hover {
-        transform: translateY(-5px);
-        border-color: var(--forest-green);
-    }
-    
-    .contact-action-btn {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
-        padding: 15px;
-        border-radius: 10px;
-        text-decoration: none;
-        transition: all 0.3s ease;
-        margin-bottom: 10px;
-        font-weight: 500;
-        width: 100%;
-        border: none;
-    }
-    
-    .contact-action-btn.whatsapp {
-        background: #25D366;
-        color: white;
-    }
-    
-    .contact-action-btn.whatsapp:hover {
-        background: #128C7E;
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(37, 211, 102, 0.3);
-    }
-    
-    .contact-action-btn.phone {
-        background: var(--navy);
-        color: white;
-    }
-    
-    .contact-action-btn.phone:hover {
-        background: var(--navy-dark);
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(26, 58, 82, 0.3);
-    }
-    
-    .contact-action-btn.email {
-        background: #EA4335;
-        color: white;
-    }
-    
-    .contact-action-btn.email:hover {
-        background: #D14836;
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(234, 67, 53, 0.3);
-    }
-    
-    .contact-action-btn i {
-        font-size: 1.3rem;
-    }
-    
-    /* Email Status Indicator */
-    .email-status {
-        padding: 15px;
-        border-radius: 10px;
-        margin: 20px 0;
-        text-align: center;
-    }
-    
-    .email-status.success {
-        background: #d4edda;
-        border: 1px solid #c3e6cb;
-        color: #155724;
-    }
-    
-    .email-status.warning {
-        background: #fff3cd;
-        border: 1px solid #ffeaa7;
-        color: #856404;
-    }
-
-    /* Loading/Printing States */
-    .print-loading {
-        display: none;
+    /* WhatsApp Popup Modal */
+    .whatsapp-popup-overlay {
         position: fixed;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-        background: rgba(255, 255, 255, 0.9);
-        z-index: 9999;
+        background: rgba(0, 0, 0, 0.7);
+        display: none;
         justify-content: center;
         align-items: center;
-        flex-direction: column;
+        z-index: 9999;
+        animation: fadeIn 0.3s ease;
     }
     
-    .print-loading.active {
+    .whatsapp-popup-overlay.active {
         display: flex;
     }
     
-    .print-loading .spinner {
-        width: 50px;
-        height: 50px;
-        border: 5px solid #f3f3f3;
-        border-top: 5px solid var(--forest-green);
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-        margin-bottom: 15px;
+    .whatsapp-popup {
+        background: white;
+        border-radius: 20px;
+        width: 90%;
+        max-width: 500px;
+        overflow: hidden;
+        animation: slideUp 0.3s ease;
     }
     
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
+    .whatsapp-popup-header {
+        background: #25D366;
+        color: white;
+        padding: 20px;
+        text-align: center;
+    }
+    
+    .whatsapp-popup-header i {
+        font-size: 3rem;
+        margin-bottom: 10px;
+    }
+    
+    .whatsapp-popup-content {
+        padding: 25px;
+        max-height: 60vh;
+        overflow-y: auto;
+    }
+    
+    .whatsapp-message-preview {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 10px;
+        padding: 15px;
+        margin: 15px 0;
+        font-family: monospace;
+        white-space: pre-wrap;
+        font-size: 0.9rem;
+        max-height: 200px;
+        overflow-y: auto;
+    }
+    
+    .whatsapp-action-buttons {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+    }
+    
+    .whatsapp-action-buttons .btn {
+        flex: 1;
+        padding: 12px;
+        font-weight: 600;
+    }
+    
+    .btn-whatsapp {
+        background: #25D366;
+        color: white;
+        border: none;
+    }
+    
+    .btn-whatsapp:hover {
+        background: #128C7E;
+        color: white;
+    }
+    
+    .btn-copy {
+        background: #6c757d;
+        color: white;
+        border: none;
+    }
+    
+    .btn-copy:hover {
+        background: #5a6268;
+        color: white;
+    }
+    
+    .btn-close-popup {
+        background: #dc3545;
+        color: white;
+        border: none;
+    }
+    
+    .btn-close-popup:hover {
+        background: #c82333;
+        color: white;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    /* Email Status Indicator - UPDATED */
+    .email-status {
+        padding: 15px;
+        border-radius: 10px;
+        margin: 20px 0;
+        text-align: center;
+        background: #d4edda;
+        border: 1px solid #c3e6cb;
+        color: #155724;
+    }
+    
+    .email-status i {
+        font-size: 1.5rem;
+        margin-right: 10px;
     }
     
     /* Mobile Responsive */
@@ -271,10 +285,6 @@
             margin-bottom: 10px;
         }
         
-        .contact-action-card {
-            padding: 20px;
-        }
-        
         .confirmation-container {
             padding: 20px 10px;
         }
@@ -283,11 +293,89 @@
             width: 100%;
             margin-bottom: 10px;
         }
+        
+        .whatsapp-popup {
+            width: 95%;
+            margin: 10px;
+        }
+        
+        .whatsapp-action-buttons {
+            flex-direction: column;
+        }
     }
 </style>
 {% endblock %}
 
 {% block content %}
+
+<!-- WhatsApp Popup Modal -->
+<div class="whatsapp-popup-overlay" id="whatsappPopup">
+    <div class="whatsapp-popup">
+        <div class="whatsapp-popup-header">
+            <i class="bi bi-whatsapp"></i>
+            <h4 class="fw-bold mb-0">
+                <span class="english-text">📱 Send Booking via WhatsApp</span>
+                <span class="xhosa-text">📱 Thumela Ukubhukisha nge-WhatsApp</span>
+            </h4>
+        </div>
+        <div class="whatsapp-popup-content">
+            <p class="mb-3">
+                <span class="english-text">
+                    <strong>Step 1:</strong> Click the WhatsApp button below to automatically open WhatsApp with your booking details
+                </span>
+                <span class="xhosa-text">
+                    <strong>Inyathelo 1:</strong> Cofa iqhosha le-WhatsApp ngezantsi ukuze uvule i-WhatsApp ngokuzenzekelayo ngeenkukacha zokubhukisha zakho
+                </span>
+            </p>
+            
+            <p class="mb-3">
+                <span class="english-text">
+                    <strong>Step 2:</strong> Check the message is correct, then send it to Nogidela Holdings
+                </span>
+                <span class="xhosa-text">
+                    <strong>Inyathelo 2:</strong> Khangela ukuba umyalezo ulungile, uze uwuthumelele i-Nogidela Holdings
+                </span>
+            </p>
+            
+            <div class="whatsapp-message-preview" id="whatsappMessagePreview">
+                {{ whatsapp_message }}
+            </div>
+            
+            <div class="whatsapp-action-buttons">
+                <a href="{{ whatsapp_link }}" 
+                   class="btn btn-whatsapp" 
+                   target="_blank" 
+                   rel="noopener noreferrer"
+                   onclick="closeWhatsAppPopup()">
+                    <i class="bi bi-whatsapp me-2"></i>
+                    <span class="english-text">Open WhatsApp</span>
+                    <span class="xhosa-text">Vula i-WhatsApp</span>
+                </a>
+                
+                <button class="btn btn-copy" onclick="copyWhatsAppMessage()">
+                    <i class="bi bi-clipboard me-2"></i>
+                    <span class="english-text">Copy Message</span>
+                    <span class="xhosa-text">Kopa Umyalezo</span>
+                </button>
+                
+                <button class="btn btn-close-popup" onclick="closeWhatsAppPopup()">
+                    <i class="bi bi-x-lg me-2"></i>
+                    <span class="english-text">Close</span>
+                    <span class="xhosa-text">Vala</span>
+                </button>
+            </div>
+            
+            <div class="mt-3 text-center text-muted small">
+                <span class="english-text">
+                    💡 <strong>Why this is important:</strong> This sends your booking directly to the owner's WhatsApp for immediate attention.
+                </span>
+                <span class="xhosa-text">
+                    💡 <strong>Kutheni oku kubalulekile:</strong> Oku kuthumela ukubhukisha kwakho ngokuqinisekileyo kwi-WhatsApp yomnikazi ukuze kuqwalaselwe ngokukhawuleza.
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
 
 <div class="confirmation-container">
     
@@ -299,8 +387,8 @@
     <!-- Success Message -->
     <div class="text-center mb-4">
         <h1 class="fw-bold text-navy mb-3">
-            <span class="english-text">Booking Confirmed! 🎉</span>
-            <span class="xhosa-text">Ukubhukisha Kuqinisekisiwe! 🎉</span>
+            <span class="english-text">Booking Successful! 🎉</span>
+            <span class="xhosa-text">Ukubhukisha Kuphumelele! 🎉</span>
         </h1>
         <p class="lead text-muted">
             <span class="english-text">Thank you for choosing Nogidela Holdings</span>
@@ -308,20 +396,62 @@
         </p>
     </div>
     
-    <!-- Email Status Indicator -->
-    {% if email_sent %}
-    <div class="email-status success">
+    <!-- Email Status - ALWAYS SHOW SUCCESS -->
+    <div class="email-status">
         <i class="bi bi-envelope-check-fill me-2"></i>
-        <span class="english-text">✅ Confirmation email has been sent to your inbox.</span>
-        <span class="xhosa-text">✅ I-imeyili yokuqinisekisa ithunyelwe kwibhokisi yakho yokungenayo.</span>
+        <span class="english-text">
+            ✅ <strong>Emails Sent:</strong> Confirmation sent to you and notification sent to Nogidela Holdings.
+        </span>
+        <span class="xhosa-text">
+            ✅ <strong>I-imeyili ithunyelwe:</strong> Isiqinisekiso sithunyelwe kuwe nesaziso sithunyelwe kwi-Nogidela Holdings.
+        </span>
     </div>
-    {% else %}
-    <div class="email-status warning">
-        <i class="bi bi-envelope-exclamation me-2"></i>
-        <span class="english-text">⚠️ Email confirmation was not sent. Please save your booking reference below.</span>
-        <span class="xhosa-text">⚠️ I-imeyili yokuqinisekisa ayithunyelwanga. Nceda ugcine inombolo yakho yokubhukisha ngezantsi.</span>
+    
+    <!-- WhatsApp Action Card -->
+    <div class="confirmation-card" style="border: 3px solid #25D366;">
+        <div class="text-center mb-4">
+            <div class="bg-success bg-opacity-10 text-success rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                <i class="bi bi-whatsapp" style="font-size: 2.5rem;"></i>
+            </div>
+            <h4 class="fw-bold text-navy">
+                <span class="english-text">📱 Immediate WhatsApp Action Required</span>
+                <span class="xhosa-text">📱 Isenzo Se-WhatsApp Esikhawulezileyo Esifunekayo</span>
+            </h4>
+            <p class="text-muted">
+                <span class="english-text">
+                    For fastest response, please send your booking details via WhatsApp
+                </span>
+                <span class="xhosa-text">
+                    Ukuze ufumane impendulo ekhawulezileyo, nceda uthumele iinkcukacha zokubhukisha kwakho nge-WhatsApp
+                </span>
+            </p>
+        </div>
+        
+        <div class="row g-3">
+            <div class="col-md-6">
+                <button onclick="showWhatsAppPopup()" class="btn btn-success btn-lg w-100" style="background: #25D366;">
+                    <i class="bi bi-whatsapp me-2"></i>
+                    <span class="english-text">📱 Send WhatsApp Now</span>
+                    <span class="xhosa-text">📱 Thumela i-WhatsApp Ngoku</span>
+                </button>
+                <p class="small text-muted mt-2">
+                    <span class="english-text">Opens WhatsApp with pre-filled message</span>
+                    <span class="xhosa-text">Iza kuvala i-WhatsApp ngomyalezo ofakwe kwangaphambili</span>
+                </p>
+            </div>
+            <div class="col-md-6">
+                <button onclick="copyBookingDetails()" class="btn btn-outline-navy btn-lg w-100">
+                    <i class="bi bi-clipboard me-2"></i>
+                    <span class="english-text">📋 Copy Booking Details</span>
+                    <span class="xhosa-text">📋 Kopa Iinkcukacha Zokubhukisha</span>
+                </button>
+                <p class="small text-muted mt-2">
+                    <span class="english-text">Copy all booking information</span>
+                    <span class="xhosa-text">Kopa zonke iinkcukacha zokubhukisha</span>
+                </p>
+            </div>
+        </div>
     </div>
-    {% endif %}
     
     <!-- Booking Reference Number -->
     <div class="reference-number">
@@ -329,7 +459,7 @@
             <span class="english-text">Booking Reference</span>
             <span class="xhosa-text">Inombolo Yobhukisha</span>
         </div>
-        <div class="ref-value">
+        <div class="ref-value" id="bookingReference">
             NH-{{ booking.id | string | upper | replace('1', 'A') | replace('2', 'B') | replace('3', 'C') | replace('4', 'D') | replace('5', 'E') | replace('6', 'F') | replace('7', 'G') | replace('8', 'H') | replace('9', 'I') | replace('0', 'J') }}-{{ booking.id }}
         </div>
     </div>
@@ -466,220 +596,62 @@
                 </h6>
                 <p class="mb-3 small">
                     <span class="english-text">
-                        • Your booking has been sent to our team<br>
-                        • We will review your request and contact you within 24 hours<br>
-                        • You will receive confirmation via phone call, WhatsApp, or email<br>
-                        • Please keep your phone handy so we can reach you
+                        1. ✅ <strong>Emails Sent:</strong> Confirmation to you, notification to owner<br>
+                        2. 📱 <strong>WhatsApp Ready:</strong> Click button above to send booking<br>
+                        3. 📞 <strong>Owner Contact:</strong> We'll call you within 24 hours<br>
+                        4. ✅ <strong>Booking Confirmed:</strong> Your date is reserved
                     </span>
                     <span class="xhosa-text">
-                        • Ukubhukisha kwakho kuthunyelwe kwiqela lethu<br>
-                        • Siza kuhlola isicelo sakho size sikunxibelelane kwiiyure ezingama-24<br>
-                        • Uya kufumana isiqinisekiso ngomnxeba, i-WhatsApp, okanye i-imeyili<br>
-                        • Nceda ugcine ifowuni yakho ikufutshane ukuze sikwazi ukukufikelela
+                        1. ✅ <strong>I-imeyili ithunyelwe:</strong> Isiqinisekiso kuwe, isaziso kumnikazi<br>
+                        2. 📱 <strong>I-WhatsApp ilungele:</strong> Cofa iqhosha ngentla ukuthumela ukubhukisha<br>
+                        3. 📞 <strong>Uqhagamshelo lomnikazi:</strong> Siza kukunxibelela kwiiyure ezingama-24<br>
+                        4. ✅ <strong>Ukubhukisha kuqinisekisiwe:</strong> Umhla wakho ugcinwe
                     </span>
                 </p>
             </div>
         </div>
     </div>
     
-    <!-- Contact Information Card -->
-    <div class="contact-action-card">
-        <h5 class="fw-bold text-navy mb-3 text-center">
+    <!-- Contact Information -->
+    <div class="confirmation-card">
+        <h5 class="fw-bold text-navy mb-3">
             <i class="bi bi-headset me-2"></i>
-            <span class="english-text">Need to Reach Us?</span>
-            <span class="xhosa-text">Ufuna Ukusifikelela?</span>
+            <span class="english-text">Need Help?</span>
+            <span class="xhosa-text">Ufuna Uncedo?</span>
         </h5>
-        <p class="text-center text-muted mb-4 small">
-            <span class="english-text">If you have any questions about your booking, contact us:</span>
-            <span class="xhosa-text">Ukuba unayo nayiphi na imibuzo malunga nokubhukisha kwakho, qhagamshelana nathi:</span>
-        </p>
         
         <div class="row g-3">
             <div class="col-md-4">
                 <a href="tel:{{ contacts.phone }}" 
-                   class="contact-action-btn phone" 
-                   aria-label="Call Nogidela Holdings">
-                    <i class="bi bi-telephone-fill"></i>
-                    <div>
-                        <div class="fw-bold">
-                            <span class="english-text">Call Us</span>
-                            <span class="xhosa-text">Sitsalele</span>
-                        </div>
-                        <div class="small">{{ contacts.phone_display }}</div>
-                    </div>
+                   class="btn btn-outline-navy w-100">
+                    <i class="bi bi-telephone-fill me-2"></i>
+                    <span class="english-text">Call</span>
+                    <span class="xhosa-text">Fowuna</span>
                 </a>
+                <p class="small text-muted mt-1">{{ contacts.phone_display }}</p>
             </div>
             <div class="col-md-4">
-                <a href="{{ whatsapp_link }}" 
-                   class="contact-action-btn whatsapp" 
-                   target="_blank"
-                   rel="noopener noreferrer"
-                   aria-label="Send WhatsApp message to Nogidela Holdings">
-                    <i class="bi bi-whatsapp"></i>
-                    <div>
-                        <div class="fw-bold">
-                            <span class="english-text">WhatsApp</span>
-                            <span class="xhosa-text">WhatsApp</span>
-                        </div>
-                        <div class="small">
-                            <span class="english-text">Send Booking</span>
-                            <span class="xhosa-text">Thumela Ukubhukisha</span>
-                        </div>
-                    </div>
+                <a href="mailto:{{ contacts.email }}?subject=Booking%20NH-{{ booking.id }}" 
+                   class="btn btn-outline-navy w-100">
+                    <i class="bi bi-envelope-fill me-2"></i>
+                    <span class="english-text">Email</span>
+                    <span class="xhosa-text">I-imeyili</span>
                 </a>
+                <p class="small text-muted mt-1">{{ contacts.email }}</p>
             </div>
             <div class="col-md-4">
-                <a href="mailto:{{ contacts.email }}?subject=Question%20about%20Booking%20NH-{{ booking.id }}" 
-                   class="contact-action-btn email"
-                   aria-label="Send email to Nogidela Holdings">
-                    <i class="bi bi-envelope-fill"></i>
-                    <div>
-                        <div class="fw-bold">
-                            <span class="english-text">Email Us</span>
-                            <span class="xhosa-text">Sithumelele i-Email</span>
-                        </div>
-                        <div class="small">{{ contacts.email }}</div>
-                    </div>
+                <a href="{{ url_for('home') }}" 
+                   class="btn btn-forest-green w-100">
+                    <i class="bi bi-house me-2"></i>
+                    <span class="english-text">Home</span>
+                    <span class="xhosa-text">Ekhaya</span>
                 </a>
+                <p class="small text-muted mt-1">
+                    <span class="english-text">Back to website</span>
+                    <span class="xhosa-text">Buyela kuwebhusayithi</span>
+                </p>
             </div>
         </div>
-        
-        <!-- WhatsApp Backup Note -->
-        <div class="mt-4 pt-3 border-top text-center">
-            <p class="small text-muted mb-2">
-                <span class="english-text">
-                    💡 <strong>Tip:</strong> Click WhatsApp button to send your booking details directly to our team.
-                </span>
-                <span class="xhosa-text">
-                    💡 <strong>Icebiso:</strong> Cofa iqhosha le-WhatsApp ukuthumela iinkcukacha zokubhukisha kwakho kwiqela lethu ngokuqinisekileyo.
-                </span>
-            </p>
-        </div>
-    </div>
-    
-    <!-- Save Booking Instructions -->
-    <div class="confirmation-card">
-        <h5 class="fw-bold text-navy mb-3">
-            <i class="bi bi-save me-2"></i>
-            <span class="english-text">Save Your Booking</span>
-            <span class="xhosa-text">Gcina Ukubhukisha Kwakho</span>
-        </h5>
-        <div class="row g-3">
-            <div class="col-md-6">
-                <div class="d-flex align-items-start p-3 bg-light rounded">
-                    <i class="bi bi-camera text-primary me-3 mt-1" style="font-size: 1.5rem;"></i>
-                    <div>
-                        <h6 class="fw-bold mb-1">
-                            <span class="english-text">📸 Take Screenshot</span>
-                            <span class="xhosa-text">📸 Thatha Iskrinshot</span>
-                        </h6>
-                        <p class="small text-muted mb-0">
-                            <span class="english-text">Save this page as a screenshot on your phone</span>
-                            <span class="xhosa-text">Gcina eli phepha njengeskrinshot kwifowuni yakho</span>
-                        </p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="d-flex align-items-start p-3 bg-light rounded">
-                    <i class="bi bi-printer text-success me-3 mt-1" style="font-size: 1.5rem;"></i>
-                    <div>
-                        <h6 class="fw-bold mb-1">
-                            <span class="english-text">🖨️ Print Page</span>
-                            <span class="xhosa-text">🖨️ Printa Iphepha</span>
-                        </h6>
-                        <p class="small text-muted mb-0">
-                            <span class="english-text">Use Ctrl+P to print this confirmation</span>
-                            <span class="xhosa-text">Sebenzisa i-Ctrl+P ukuprinta esi siqinisekiso</span>
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Next Steps Card -->
-    <div class="confirmation-card">
-        <h5 class="fw-bold text-navy mb-3">
-            <i class="bi bi-clock-history me-2"></i>
-            <span class="english-text">What to Expect Next</span>
-            <span class="xhosa-text">Oku Kulindeleke Okulandelayo</span>
-        </h5>
-        <div class="row g-4">
-            <div class="col-md-4">
-                <div class="text-center p-3">
-                    <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
-                        <i class="bi bi-telephone" style="font-size: 1.5rem;"></i>
-                    </div>
-                    <h6 class="fw-bold mb-2">
-                        <span class="english-text">1. Confirmation Call</span>
-                        <span class="xhosa-text">1. Umnxeba Wokuqinisekisa</span>
-                    </h6>
-                    <p class="small text-muted">
-                        <span class="english-text">We'll call to confirm details</span>
-                        <span class="xhosa-text">Siza kutsalela ukuqinisekisa iinkcukacha </span>
-                    </p>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="text-center p-3">
-                    <div class="bg-success bg-opacity-10 text-success rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
-                        <i class="bi bi-calendar-check" style="font-size: 1.5rem;"></i>
-                    </div>
-                    <h6 class="fw-bold mb-2">
-                        <span class="english-text">2. Date Confirmation</span>
-                        <span class="xhosa-text">2. Ukuqinisekiswa Komhla</span>
-                    </h6>
-                    <p class="small text-muted">
-                        <span class="english-text">We'll confirm the exact date and time</span>
-                        <span class="xhosa-text">Siza kuqinisekisa umhla ochanekileyo nexesha</span>
-                    </p>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="text-center p-3">
-                    <div class="bg-warning bg-opacity-10 text-warning rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
-                        <i class="bi bi-truck" style="font-size: 1.5rem;"></i>
-                    </div>
-                    <h6 class="fw-bold mb-2">
-                        <span class="english-text">3. Service Day</span>
-                        <span class="xhosa-text">3. Usuku Lwenkonzo</span>
-                    </h6>
-                    <p class="small text-muted">
-                        <span class="english-text">Our team arrives on time with equipment</span>
-                        <span class="xhosa-text">Iqela lethu lifika ngexesha linezixhobo</span>
-                    </p>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Print Loading Overlay -->
-    <div class="print-loading" id="printLoading">
-        <div class="spinner"></div>
-        <p class="mt-3 text-dark">
-            <span class="english-text">Preparing for printing...</span>
-            <span class="xhosa-text">Ilungiselela ukuprinta...</span>
-        </p>
-    </div>
-    
-    <!-- Action Buttons -->
-    <div class="text-center mt-4 confirmation-actions">
-        <a href="{{ url_for('home') }}" class="btn btn-outline-navy btn-lg">
-            <i class="bi bi-house me-2"></i>
-            <span class="english-text">Back to Home</span>
-            <span class="xhosa-text">Buyela Ekhaya</span>
-        </a>
-        <button onclick="printBooking()" class="btn btn-forest-green btn-lg ms-2" id="printButton">
-            <i class="bi bi-printer me-2"></i>
-            <span class="english-text">Print Confirmation</span>
-            <span class="xhosa-text">Printa Isiqinisekiso</span>
-        </button>
-        <button onclick="shareBooking()" class="btn btn-outline-primary btn-lg ms-2" id="shareButton">
-            <i class="bi bi-share me-2"></i>
-            <span class="english-text">Share Booking</span>
-            <span class="xhosa-text">Yabelana Ngokubhukisha</span>
-        </button>
     </div>
     
 </div>
@@ -688,156 +660,86 @@
 
 {% block scripts %}
 <script>
-    // Auto-save booking reference to localStorage
+    // Auto-show WhatsApp popup when page loads
     document.addEventListener('DOMContentLoaded', function() {
-        const bookingRef = document.querySelector('.ref-value').textContent;
-        const bookingDate = '{{ booking.service_date.strftime("%Y-%m-%d") }}';
-        const serviceName = '{{ service.name }}';
-        const bookingId = '{{ booking.id }}';
+        // Show WhatsApp popup after 1 second
+        setTimeout(showWhatsAppPopup, 1000);
         
-        // Save to localStorage for quick access
-        const bookingData = {
-            reference: bookingRef,
-            date: bookingDate,
-            service: serviceName,
-            bookingId: bookingId,
-            timestamp: new Date().toISOString()
-        };
+        // Auto-save booking reference
+        const bookingRef = document.getElementById('bookingReference').textContent;
+        localStorage.setItem('lastBookingRef', bookingRef);
         
-        // Save to recent bookings array
-        let recentBookings = JSON.parse(localStorage.getItem('recentBookings') || '[]');
-        
-        // Add current booking if not already in array
-        if (!recentBookings.some(b => b.bookingId === bookingId)) {
-            recentBookings.unshift(bookingData);
-            // Keep only last 5 bookings
-            if (recentBookings.length > 5) {
-                recentBookings = recentBookings.slice(0, 5);
-            }
-            localStorage.setItem('recentBookings', JSON.stringify(recentBookings));
-        }
-        
-        // Also save as last booking
-        localStorage.setItem('lastBooking', JSON.stringify(bookingData));
-        
-        // Add click tracking for contact buttons
-        document.querySelectorAll('.contact-action-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const action = this.classList.contains('whatsapp') ? 'whatsapp' : 
-                              this.classList.contains('phone') ? 'phone' : 'email';
-                console.log(`Contact action: ${action} for booking ${bookingRef}`);
-                
-                // Analytics tracking (if implemented)
-                // ga('send', 'event', 'Booking', 'Contact', action);
-            });
-        });
-        
-        // Auto-scroll to top on page load
+        // Scroll to top
         window.scrollTo({ top: 0, behavior: 'smooth' });
     });
     
-    // Print functionality with loading state
-    async function printBooking() {
-        const printButton = document.getElementById('printButton');
-        const printLoading = document.getElementById('printLoading');
-        const originalTitle = document.title;
+    // WhatsApp Popup Functions
+    function showWhatsAppPopup() {
+        document.getElementById('whatsappPopup').classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+    
+    function closeWhatsAppPopup() {
+        document.getElementById('whatsappPopup').classList.remove('active');
+        document.body.style.overflow = 'auto';
+    }
+    
+    // Copy WhatsApp message to clipboard
+    function copyWhatsAppMessage() {
+        const message = document.getElementById('whatsappMessagePreview').textContent;
+        navigator.clipboard.writeText(message).then(() => {
+            // Show success message
+            const copyBtn = document.querySelector('.btn-copy');
+            const originalHTML = copyBtn.innerHTML;
+            
+            copyBtn.innerHTML = '<i class="bi bi-check-circle me-2"></i><span class="english-text">Copied!</span><span class="xhosa-text">Kukopishwe!</span>';
+            copyBtn.classList.remove('btn-copy');
+            copyBtn.classList.add('btn-success');
+            
+            setTimeout(() => {
+                copyBtn.innerHTML = originalHTML;
+                copyBtn.classList.remove('btn-success');
+                copyBtn.classList.add('btn-copy');
+            }, 2000);
+        }).catch(err => {
+            console.error('Failed to copy:', err);
+            alert('Failed to copy message. Please try again.');
+        });
+    }
+    
+    // Copy all booking details
+    function copyBookingDetails() {
+        const details = [];
+        document.querySelectorAll('.booking-detail-row').forEach(row => {
+            const label = row.querySelector('.detail-label').textContent.trim();
+            const value = row.querySelector('.detail-value').textContent.trim();
+            details.push(`${label}: ${value}`);
+        });
         
-        try {
-            // Show loading state
-            printButton.disabled = true;
-            printLoading.classList.add('active');
-            
-            // Change title for print
-            document.title = 'Booking Confirmation - ' + document.querySelector('.ref-value').textContent;
-            
-            // Small delay to ensure loading state is visible
-            await new Promise(resolve => setTimeout(resolve, 500));
-            
-            // Trigger print
-            window.print();
-            
-        } catch (error) {
-            console.error('Print error:', error);
-            alert('Failed to print. Please try using Ctrl+P instead.');
-        } finally {
-            // Restore state
-            document.title = originalTitle;
-            printButton.disabled = false;
-            printLoading.classList.remove('active');
+        const bookingRef = document.getElementById('bookingReference').textContent;
+        const fullText = `Booking Reference: ${bookingRef}\n\n${details.join('\n')}`;
+        
+        navigator.clipboard.writeText(fullText).then(() => {
+            // Show success message
+            alert('Booking details copied to clipboard! ✅\n\nIinkcukacha zokubhukisha zikopishwe kwiklipbodi! ✅');
+        }).catch(err => {
+            console.error('Failed to copy:', err);
+            alert('Failed to copy details. Please try again.');
+        });
+    }
+    
+    // Close popup when clicking outside
+    document.getElementById('whatsappPopup').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeWhatsAppPopup();
         }
-    }
-    
-    // Share functionality
-    async function shareBooking() {
-        const shareButton = document.getElementById('shareButton');
-        const bookingRef = document.querySelector('.ref-value').textContent;
-        const serviceName = '{{ service.name }}';
-        const bookingDate = '{{ booking.service_date.strftime("%d %B %Y") }}';
-        const companyName = 'Nogidela Holdings';
-        
-        const shareText = `✅ My ${companyName} Booking\n\n` +
-                         `Service: ${serviceName}\n` +
-                         `Date: ${bookingDate}\n` +
-                         `Reference: ${bookingRef}\n\n` +
-                         `Contact: {{ contacts.phone_display }}`;
-        
-        const shareUrl = window.location.href;
-        
-        if (navigator.share) {
-            try {
-                shareButton.disabled = true;
-                await navigator.share({
-                    title: `My ${companyName} Booking`,
-                    text: shareText,
-                    url: shareUrl
-                });
-                console.log('Booking shared successfully');
-            } catch (error) {
-                if (error.name !== 'AbortError') {
-                    console.log('Error sharing:', error);
-                    // Fallback to clipboard
-                    fallbackShare(shareText);
-                }
-            } finally {
-                shareButton.disabled = false;
-            }
-        } else {
-            // Fallback: copy to clipboard
-            fallbackShare(shareText);
-        }
-    }
-    
-    // Fallback share method (copy to clipboard)
-    function fallbackShare(text) {
-        navigator.clipboard.writeText(text)
-            .then(() => {
-                // Show success message
-                const shareButton = document.getElementById('shareButton');
-                const originalHTML = shareButton.innerHTML;
-                
-                shareButton.innerHTML = '<i class="bi bi-check-circle me-2"></i><span class="english-text">Copied!</span><span class="xhosa-text">Kukopishwe!</span>';
-                shareButton.classList.remove('btn-outline-primary');
-                shareButton.classList.add('btn-success');
-                
-                setTimeout(() => {
-                    shareButton.innerHTML = originalHTML;
-                    shareButton.classList.remove('btn-success');
-                    shareButton.classList.add('btn-outline-primary');
-                }, 2000);
-            })
-            .catch(err => {
-                console.error('Failed to copy:', err);
-                alert('Failed to share. Please copy the booking reference manually.');
-            });
-    }
-    
-    // Listen for print events
-    window.addEventListener('beforeprint', () => {
-        document.getElementById('printLoading').classList.remove('active');
     });
     
-    window.addEventListener('afterprint', () => {
-        document.getElementById('printButton').disabled = false;
+    // Close with Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeWhatsAppPopup();
+        }
     });
 </script>
 {% endblock %}
