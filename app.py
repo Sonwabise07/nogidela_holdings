@@ -93,7 +93,7 @@ db.init_app(app)
 # ============ BUSINESS CONFIGURATION ============
 # Read from environment variables with defaults
 BUSINESS_CONTACTS = {
-    'whatsapp': os.getenv('WHATSAPP_NUMBER', '27732165687'),
+    'whatsapp': os.getenv('WHATSAPP_NUMBER', '0732165687'),
     'phone': os.getenv('PHONE_NUMBER', '0823286307'),
     'phone_display': os.getenv('PHONE_DISPLAY', '082 328 6307'),
     'email': os.getenv('BUSINESS_EMAIL', BUSINESS_DISPLAY_EMAIL),  # Display email
