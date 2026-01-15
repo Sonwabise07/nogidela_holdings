@@ -94,9 +94,10 @@ db.init_app(app)
 # Read from environment variables with defaults
 BUSINESS_CONTACTS = {
     'whatsapp': os.getenv('WHATSAPP_NUMBER', '0732165687'),
+    'whatsapp_display': '+27 73 216 5687',
     'phone': os.getenv('PHONE_NUMBER', '0823286307'),
     'phone_display': os.getenv('PHONE_DISPLAY', '082 328 6307'),
-    'email': os.getenv('BUSINESS_EMAIL', BUSINESS_DISPLAY_EMAIL),  # Display email
+    'email': 'mbeko@nogidelaholdings.co.za',
     'verified_email': VERIFIED_EMAIL,  # Verified email for notifications
     'address': os.getenv('BUSINESS_ADDRESS', '8 Bel Avenue, Centane/Kentani, Eastern Cape')
 }
