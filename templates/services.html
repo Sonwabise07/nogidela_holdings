@@ -487,6 +487,35 @@
             font-size: 1rem;
             padding: 7px 15px;
         }
+
+        /* ============================================
+           SPECIFIC FIX FOR MEAT BOOKING FORM ON MOBILE
+        ============================================ */
+        /* Ensure meat booking form has proper scrolling */
+        #meat-booking-form.booking-form-container {
+            padding-bottom: 90px; /* Space for the fixed button */
+        }
+        
+        /* Fix the submit button to bottom on mobile for meat form only */
+        #meat-booking-form .btn-submit-booking {
+            position: fixed !important;
+            bottom: 20px;
+            left: var(--mobile-form-padding);
+            right: var(--mobile-form-padding);
+            width: calc(100% - (2 * var(--mobile-form-padding))) !important;
+            z-index: 1100;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
+        }
+        
+        /* Adjust the close button to be above the fixed submit button */
+        #meat-booking-form .close-form-btn {
+            z-index: 1101;
+        }
+        
+        /* Ensure form content doesn't hide behind fixed button */
+        #meat-booking-form form {
+            padding-bottom: 80px;
+        }
     }
 
     /* Tablet optimizations */
@@ -1211,7 +1240,7 @@
     }
 
     // ============================================
-    // FORM TOGGLE FUNCTIONALITY
+    // FORM TOGGLE FUNCTIONALITY - UPDATED FOR MEAT FORM
     // ============================================
     function toggleForm(formId) {
         const form = document.getElementById(formId);
@@ -1231,6 +1260,31 @@
         // Handle body scroll on mobile
         if (window.innerWidth < 768) {
             document.body.style.overflow = isOpening ? 'hidden' : 'auto';
+            
+            // Special handling for meat booking form
+            if (formId === 'meat-booking-form' && isOpening) {
+                // Force scroll to bottom after a short delay to ensure button is visible
+                setTimeout(() => {
+                    const submitBtn = form.querySelector('.btn-submit-booking');
+                    if (submitBtn) {
+                        submitBtn.scrollIntoView({ behavior: 'smooth', block: 'end' });
+                    }
+                }, 300);
+                
+                // Also add a visual indicator that there's more content
+                form.addEventListener('scroll', function() {
+                    const scrollTop = form.scrollTop;
+                    const scrollHeight = form.scrollHeight;
+                    const clientHeight = form.clientHeight;
+                    
+                    // Show a subtle indicator when not at bottom
+                    if (scrollHeight - scrollTop - clientHeight > 100) {
+                        form.classList.add('scroll-prompt');
+                    } else {
+                        form.classList.remove('scroll-prompt');
+                    }
+                });
+            }
         }
         
         // Scroll to form on desktop
