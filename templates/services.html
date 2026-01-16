@@ -45,7 +45,7 @@
     }
 
     /* ============================================
-       SERVICE CARDS
+       SERVICE CARDS - FIXED ALIGNMENT
     ============================================ */
     .service-card {
         border: none;
@@ -55,11 +55,31 @@
         height: 100%;
         background: white;
         transition: all var(--transition-speed) ease;
+        display: flex;
+        flex-direction: column;
+        min-height: 480px;
     }
     
     .service-card:hover {
         box-shadow: var(--card-shadow-hover);
         transform: translateY(-5px);
+    }
+
+    /* Ensure all service cards are the same height */
+    .row.g-4 > [class*="col-"] {
+        display: flex;
+    }
+
+    .row.g-4 > [class*="col-"] > .service-card {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Consistent button positioning */
+    .service-card > .btn-toggle-booking {
+        margin-top: auto;
+        width: 100%;
     }
 
     /* ============================================
@@ -68,11 +88,12 @@
     .img-container {
         position: relative;
         width: 100%;
-        padding-bottom: 60%; /* 5:3 aspect ratio - adjust as needed */
+        height: 200px;
         overflow: hidden;
         background: linear-gradient(135deg, #f0f0f0, #e0e0e0);
         border-radius: 12px;
         margin-bottom: 15px;
+        flex-shrink: 0;
     }
     
     .img-container img {
@@ -116,6 +137,21 @@
         font-weight: 600;
         text-align: center;
         padding: 0 20px;
+    }
+
+    /* ============================================
+       CARD CONTENT AREA
+    ============================================ */
+    .card-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        padding: 1.5rem;
+    }
+
+    .card-content .btn-toggle-booking {
+        margin-top: auto;
+        align-self: flex-start;
     }
 
     /* ============================================
@@ -247,7 +283,7 @@
     }
 
     /* ============================================
-       BUTTONS
+       BUTTONS - FIXED ALIGNMENT
     ============================================ */
     .btn-toggle-booking {
         background: var(--navy);
@@ -260,6 +296,11 @@
         width: 100%;
         font-size: 1.05rem;
         cursor: pointer;
+        margin-top: auto;
+        min-height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
     
     .btn-toggle-booking:hover {
@@ -393,10 +434,15 @@
             font-size: 1.4rem;
         }
 
-        /* Image containers - maintain aspect ratio */
+        /* Image containers */
         .img-container {
-            padding-bottom: 65%; /* Slightly taller on mobile */
+            height: 180px;
             margin-bottom: 12px;
+        }
+
+        /* Card adjustments */
+        .service-card {
+            min-height: 420px;
         }
 
         /* Full-screen mobile forms */
@@ -521,11 +567,15 @@
     /* Tablet optimizations */
     @media (min-width: 769px) and (max-width: 992px) {
         .img-container {
-            padding-bottom: 62%;
+            height: 180px;
         }
         
         .booking-form-container {
             padding: 20px;
+        }
+        
+        .service-card {
+            min-height: 460px;
         }
     }
 
@@ -580,38 +630,40 @@
 
     <div class="row g-4 mb-5">
         <div class="col-lg-8 mx-auto">
-            <div class="service-card p-4">
+            <div class="service-card">
                 <div class="img-container">
                     <img src="/static/images/meat.jpg" alt="Professional Meat Cutting" loading="lazy">
                 </div>
                 
-                <h4 class="fw-bold text-navy mb-3">
-                    <span class="english-text">🔪 Meat Cutting Service</span>
-                    <span class="xhosa-text">🔪 Inkonzo Yokusika Inyama</span>
-                </h4>
-                
-                <p class="text-muted mb-3">
-                    <span class="english-text">
-                        Professional meat processing with modern equipment for all your events and celebrations. 
-                        We handle cows, sheep, and pigs with care and expertise.
-                    </span>
-                    <span class="xhosa-text">
-                        Ukuqhawula inyama ngobuchule ngesixhobo sanamhlanje kuzo zonke iimicimbi nemibhiyozo yakho.
-                        Silawula iinkomo, iigusha, neehagu ngokukhathalela nobuchule.
-                    </span>
-                </p>
-                
-                <div class="d-flex flex-wrap gap-2 mb-3">
-                    <span class="price-badge">🐄 Cow: R850</span>
-                    <span class="price-badge">🐑 Sheep: R200</span>
-                    <span class="price-badge">🐖 Pig: R250</span>
+                <div class="card-content">
+                    <h4 class="fw-bold text-navy mb-3">
+                        <span class="english-text">🔪 Meat Cutting Service</span>
+                        <span class="xhosa-text">🔪 Inkonzo Yokusika Inyama</span>
+                    </h4>
+                    
+                    <p class="text-muted mb-3">
+                        <span class="english-text">
+                            Professional meat processing with modern equipment for all your events and celebrations. 
+                            We handle cows, sheep, and pigs with care and expertise.
+                        </span>
+                        <span class="xhosa-text">
+                            Ukuqhawula inyama ngobuchule ngesixhobo sanamhlanje kuzo zonke iimicimbi nemibhiyozo yakho.
+                            Silawula iinkomo, iigusha, neehagu ngokukhathalela nobuchule.
+                        </span>
+                    </p>
+                    
+                    <div class="d-flex flex-wrap gap-2 mb-3">
+                        <span class="price-badge">🐄 Cow: R850</span>
+                        <span class="price-badge">🐑 Sheep: R200</span>
+                        <span class="price-badge">🐖 Pig: R250</span>
+                    </div>
+                    
+                    <button class="btn-toggle-booking" onclick="toggleForm('meat-booking-form')">
+                        <i class="bi bi-calendar-check me-2"></i>
+                        <span class="english-text">Book Meat Cutting Service</span>
+                        <span class="xhosa-text">Bhukisha Inkonzo Yokusika Inyama</span>
+                    </button>
                 </div>
-                
-                <button class="btn-toggle-booking" onclick="toggleForm('meat-booking-form')">
-                    <i class="bi bi-calendar-check me-2"></i>
-                    <span class="english-text">Book Meat Cutting Service</span>
-                    <span class="xhosa-text">Bhukisha Inkonzo Yokusika Inyama</span>
-                </button>
                 
                 <!-- MEAT BOOKING FORM -->
                 <div id="meat-booking-form" class="booking-form-container">
@@ -734,7 +786,7 @@
     </div>
     {% endif %}
 
-    <!-- ============ EQUIPMENT HIRING SERVICES ============ -->
+    <!-- ============ EQUIPMENT HIRING SERVICES - FIXED ALIGNMENT ============ -->
     {% if categories.get('Hiring') %}
     <div class="section-header">
         <i class="bi bi-truck text-primary"></i>
@@ -747,7 +799,7 @@
     <div class="row g-4 mb-5">
         {% for service in categories['Hiring'] %}
         <div class="col-lg-4 col-md-6">
-            <div class="service-card p-4">
+            <div class="service-card">
                 <div class="img-container">
                     {% if "Fridge" in service.name %}
                         <img src="/static/images/fridge.jpg" alt="{{ service.name }}" loading="lazy">
@@ -760,41 +812,45 @@
                     {% endif %}
                 </div>
                 
-                <h4 class="fw-bold text-navy mb-3">
-                    <span class="english-text">{{ service.name }}</span>
-                    <span class="xhosa-text">{{ service.name_xh }}</span>
-                </h4>
-                
-                <!-- Added descriptions for hiring services -->
-                {% if "Fridge" in service.name %}
-                <p class="text-muted mb-3">
-                    <span class="english-text">Large capacity fridge trailers perfect for events, parties, and catering services. Keep your food and drinks fresh and cold.</span>
-                    <span class="xhosa-text">Iitreyila zefriji ezinomthamo omkhulu ezifanelekileyo kwiimicimbi, iipati, neenkonzo zokuceta. Gcina ukutya nezipho zakho zintsha zipholile.</span>
-                </p>
-                {% elif "Trailer" in service.name %}
-                <p class="text-muted mb-3">
-                    <span class="english-text">Heavy-duty trailers for all your transportation needs.</span>
-                    <span class="xhosa-text">Iitreyila ezinamandla kuzo zonke iimfuno zakho zothutho. .</span>
-                </p>
-                {% elif "Firewood" in service.name %}
-                <p class="text-muted mb-3">
-                    <span class="english-text">Quality firewood delivered to your doorstep. Perfect load for a bakkie with guard rails.</span>
-                    <span class="xhosa-text">Iinkuni ezisemgangathweni ezihanjiswe emnyango wakho. Umthamo ofanelekileyo webhakki eneeguard rail.</span>
-                </p>
-                {% else %}
-                <p class="text-muted mb-3">
-                    <span class="english-text">{{ service.description }}</span>
-                    <span class="xhosa-text">{{ service.description_xh }}</span>
-                </p>
-                {% endif %}
-                
-                <span class="price-badge">R{{ "%.0f"|format(service.price) }} {{ service.unit }}</span>
-                
-                <button class="btn-toggle-booking mt-3" onclick="toggleForm('hire-{{ service.id }}-form')">
-                    <i class="bi bi-calendar-check me-2"></i>
-                    <span class="english-text">Book This Service</span>
-                    <span class="xhosa-text">Bhukisha Le Nkonzo</span>
-                </button>
+                <div class="card-content">
+                    <h4 class="fw-bold text-navy mb-3">
+                        <span class="english-text">{{ service.name }}</span>
+                        <span class="xhosa-text">{{ service.name_xh }}</span>
+                    </h4>
+                    
+                    <!-- Added descriptions for hiring services -->
+                    {% if "Fridge" in service.name %}
+                    <p class="text-muted mb-3 small">
+                        <span class="english-text">Large capacity fridge trailers perfect for events, parties, and catering services. Keep your food and drinks fresh and cold.</span>
+                        <span class="xhosa-text">Iitreyila zefriji ezinomthamo omkhulu ezifanelekileyo kwiimicimbi, iipati, neenkonzo zokuceta. Gcina ukutya nezipho zakho zintsha zipholile.</span>
+                    </p>
+                    {% elif "Trailer" in service.name %}
+                    <p class="text-muted mb-3 small">
+                        <span class="english-text">Heavy-duty trailers for all your transportation needs.</span>
+                        <span class="xhosa-text">Iitreyila ezinamandla kuzo zonke iimfuno zakho zothutho.</span>
+                    </p>
+                    {% elif "Firewood" in service.name %}
+                    <p class="text-muted mb-3 small">
+                        <span class="english-text">Quality firewood delivered to your doorstep. Perfect load for a bakkie with guard rails.</span>
+                        <span class="xhosa-text">Iinkuni ezisemgangathweni ezihanjiswe emnyango wakho. Umthamo ofanelekileyo webhakki eneeguard rail.</span>
+                    </p>
+                    {% else %}
+                    <p class="text-muted mb-3 small">
+                        <span class="english-text">{{ service.description }}</span>
+                        <span class="xhosa-text">{{ service.description_xh }}</span>
+                    </p>
+                    {% endif %}
+                    
+                    <div class="mb-3">
+                        <span class="price-badge">R{{ "%.0f"|format(service.price) }} {{ service.unit }}</span>
+                    </div>
+                    
+                    <button class="btn-toggle-booking" onclick="toggleForm('hire-{{ service.id }}-form')">
+                        <i class="bi bi-calendar-check me-2"></i>
+                        <span class="english-text">Book This Service</span>
+                        <span class="xhosa-text">Bhukisha Le Nkonzo</span>
+                    </button>
+                </div>
                 
                 <!-- HIRING BOOKING FORM -->
                 <div id="hire-{{ service.id }}-form" class="booking-form-container">
@@ -882,7 +938,7 @@
     <div class="row g-4 mb-5">
         {% for service in categories['Labor'] %}
         <div class="col-lg-4 col-md-6">
-            <div class="service-card p-4">
+            <div class="service-card">
                 <div class="img-container">
                     {% if "Grass" in service.name %}
                         <img src="/static/images/grass.jpg" alt="{{ service.name }}" loading="lazy">
@@ -895,44 +951,48 @@
                     {% endif %}
                 </div>
                 
-                <h5 class="fw-bold text-navy mb-3">
-                    <span class="english-text">{{ service.name }}</span>
-                    <span class="xhosa-text">{{ service.name_xh }}</span>
-                </h5>
-                
-                <!-- Added descriptions for labor services -->
-                {% if "Grass" in service.name %}
-                <p class="text-muted small mb-3">
-                    <span class="english-text">Professional lawn maintenance with quality equipment. We handle residential and commercial properties of all sizes.</span>
-                    <span class="xhosa-text">Ukulondoloza ingca ngobugcisa ngesixhobo esiphucukileyo. Silawula iiproperty zasekhaya nezoshishino ngobukhulu bonke.</span>
-                </p>
-                {% elif "Tree" in service.name %}
-                <p class="text-muted small mb-3">
-                    <span class="english-text">Safe and professional tree removal services. We handle dangerous trees, pruning, and complete tree removal with proper equipment.</span>
-                    <span class="xhosa-text">Iinkonzo zokugawula imithi zokhuseleko nezobugcisa. Sigawula imithi enobungozi, siginise, sigawule imithi ngokupheleleyo ngesixhobo esifanelekileyo.</span>
-                </p>
-                {% elif "Site" in service.name %}
-                <p class="text-muted small mb-3">
-                    <span class="english-text">Complete property clearing and preparation for construction or landscaping. We remove debris, bushes, and prepare your site.</span>
-                    <span class="xhosa-text">Ukucoca indawo nokuyilungiselela ukwakha okanye ukwandla indawo. Sikususa udoti, amahlathi, silungiselele indawo yakho.</span>
-                </p>
-                {% else %}
-                <p class="text-muted small mb-3">
-                    <span class="english-text">{{ service.description }}</span>
-                    <span class="xhosa-text">{{ service.description_xh }}</span>
-                </p>
-                {% endif %}
-                
-                <span class="price-badge secondary">
-                    <span class="english-text">Contact for Quote</span>
-                    <span class="xhosa-text">Qhagamshelana Ufumane Ixabiso</span>
-                </span>
-                
-                <button class="btn-toggle-booking mt-3" onclick="toggleForm('labor-{{ service.id }}-form')">
-                    <i class="bi bi-chat-dots me-2"></i>
-                    <span class="english-text">Request Quote</span>
-                    <span class="xhosa-text">Cela Ixabiso</span>
-                </button>
+                <div class="card-content">
+                    <h5 class="fw-bold text-navy mb-3">
+                        <span class="english-text">{{ service.name }}</span>
+                        <span class="xhosa-text">{{ service.name_xh }}</span>
+                    </h5>
+                    
+                    <!-- Added descriptions for labor services -->
+                    {% if "Grass" in service.name %}
+                    <p class="text-muted small mb-3">
+                        <span class="english-text">Professional lawn maintenance with quality equipment. We handle residential and commercial properties of all sizes.</span>
+                        <span class="xhosa-text">Ukulondoloza ingca ngobugcisa ngesixhobo esiphucukileyo. Silawula iiproperty zasekhaya nezoshishino ngobukhulu bonke.</span>
+                    </p>
+                    {% elif "Tree" in service.name %}
+                    <p class="text-muted small mb-3">
+                        <span class="english-text">Safe and professional tree removal services. We handle dangerous trees, pruning, and complete tree removal with proper equipment.</span>
+                        <span class="xhosa-text">Iinkonzo zokugawula imithi zokhuseleko nezobugcisa. Sigawula imithi enobungozi, siginise, sigawule imithi ngokupheleleyo ngesixhobo esifanelekileyo.</span>
+                    </p>
+                    {% elif "Site" in service.name %}
+                    <p class="text-muted small mb-3">
+                        <span class="english-text">Complete property clearing and preparation for construction or landscaping. We remove debris, bushes, and prepare your site.</span>
+                        <span class="xhosa-text">Ukucoca indawo nokuyilungiselela ukwakha okanye ukwandla indawo. Sikususa udoti, amahlathi, silungiselele indawo yakho.</span>
+                    </p>
+                    {% else %}
+                    <p class="text-muted small mb-3">
+                        <span class="english-text">{{ service.description }}</span>
+                        <span class="xhosa-text">{{ service.description_xh }}</span>
+                    </p>
+                    {% endif %}
+                    
+                    <div class="mb-3">
+                        <span class="price-badge secondary">
+                            <span class="english-text">Contact for Quote</span>
+                            <span class="xhosa-text">Qhagamshelana Ufumane Ixabiso</span>
+                        </span>
+                    </div>
+                    
+                    <button class="btn-toggle-booking" onclick="toggleForm('labor-{{ service.id }}-form')">
+                        <i class="bi bi-chat-dots me-2"></i>
+                        <span class="english-text">Request Quote</span>
+                        <span class="xhosa-text">Cela Ixabiso</span>
+                    </button>
+                </div>
                 
                 <!-- LABOR QUOTE FORM -->
                 <div id="labor-{{ service.id }}-form" class="booking-form-container">
@@ -1025,7 +1085,7 @@
     <div class="row g-4 mb-5">
         {% for service in (categories.get('Construction', []) + categories.get('Trading', [])) %}
         <div class="col-lg-6">
-            <div class="service-card p-4">
+            <div class="service-card">
                 <div class="img-container">
                     {% if "Construction" in service.name or service.category == 'Construction' %}
                         <img src="/static/images/construction.jpg" alt="{{ service.name }}" loading="lazy">
@@ -1043,39 +1103,43 @@
                     {% endif %}
                 </div>
                 
-                <h4 class="fw-bold text-navy mb-3">
-                    <span class="english-text">{{ service.name }}</span>
-                                    <span class="xhosa-text">{{ service.name_xh }}</span>
-                </h4>
-                
-                <!-- Added descriptions for construction and trading services -->
-                {% if "Construction" in service.name or service.category == 'Construction' %}
-                <p class="text-muted mb-3">
-                    <span class="english-text">Complete construction services including renovations, building projects, and structural work with quality materials and skilled labor.</span>
-                    <span class="xhosa-text">Iinkonzo zokwakha ezipheleleyo eziquka ukulungisa, amaphrojekthi okwakha, nomsebenzi wezakhiwo ngezinto eziphucukileyo nabasebenzi abanobuchule.</span>
-                </p>
-                {% elif "Trading" in service.name or service.category == 'Trading' %}
-                <p class="text-muted mb-3">
-                    <span class="english-text">General trading services including sourcing of materials, supplies, and goods for various projects and business needs.</span>
-                    <span class="xhosa-text">Iinkonzo zorhwebo ngokubanzi eziquka ukufumana izinto zokwakha, izixhobo, neminyango kumaphrojekthi ahlukahlukeneyo neemfuno zoshishino.</span>
-                </p>
-                {% else %}
-                <p class="text-muted mb-3">
-                    <span class="english-text">{{ service.description }}</span>
-                    <span class="xhosa-text">{{ service.description_xh }}</span>
-                </p>
-                {% endif %}
-                
-                <span class="price-badge secondary">
-                    <span class="english-text">Contact for Quote</span>
-                    <span class="xhosa-text">Qhagamshelana Ufumane Ixabiso</span>
-                </span>
-                
-                <button class="btn-toggle-booking mt-3" onclick="toggleForm('const-{{ service.id }}-form')">
-                    <i class="bi bi-chat-dots me-2"></i>
-                    <span class="english-text">Request Quote</span>
-                    <span class="xhosa-text">Cela Ixabiso</span>
-                </button>
+                <div class="card-content">
+                    <h4 class="fw-bold text-navy mb-3">
+                        <span class="english-text">{{ service.name }}</span>
+                        <span class="xhosa-text">{{ service.name_xh }}</span>
+                    </h4>
+                    
+                    <!-- Added descriptions for construction and trading services -->
+                    {% if "Construction" in service.name or service.category == 'Construction' %}
+                    <p class="text-muted mb-3">
+                        <span class="english-text">Complete construction services including renovations, building projects, and structural work with quality materials and skilled labor.</span>
+                        <span class="xhosa-text">Iinkonzo zokwakha ezipheleleyo eziquka ukulungisa, amaphrojekthi okwakha, nomsebenzi wezakhiwo ngezinto eziphucukileyo nabasebenzi abanobuchule.</span>
+                    </p>
+                    {% elif "Trading" in service.name or service.category == 'Trading' %}
+                    <p class="text-muted mb-3">
+                        <span class="english-text">General trading services including sourcing of materials, supplies, and goods for various projects and business needs.</span>
+                        <span class="xhosa-text">Iinkonzo zorhwebo ngokubanzi eziquka ukufumana izinto zokwakha, izixhobo, neminyango kumaphrojekthi ahlukahlukeneyo neemfuno zoshishino.</span>
+                    </p>
+                    {% else %}
+                    <p class="text-muted mb-3">
+                        <span class="english-text">{{ service.description }}</span>
+                        <span class="xhosa-text">{{ service.description_xh }}</span>
+                    </p>
+                    {% endif %}
+                    
+                    <div class="mb-3">
+                        <span class="price-badge secondary">
+                            <span class="english-text">Contact for Quote</span>
+                            <span class="xhosa-text">Qhagamshelana Ufumane Ixabiso</span>
+                        </span>
+                    </div>
+                    
+                    <button class="btn-toggle-booking" onclick="toggleForm('const-{{ service.id }}-form')">
+                        <i class="bi bi-chat-dots me-2"></i>
+                        <span class="english-text">Request Quote</span>
+                        <span class="xhosa-text">Cela Ixabiso</span>
+                    </button>
+                </div>
                 
                 <!-- CONSTRUCTION/TRADING QUOTE FORM -->
                 <div id="const-{{ service.id }}-form" class="booking-form-container">

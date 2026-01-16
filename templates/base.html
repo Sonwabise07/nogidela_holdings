@@ -5,6 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Nogidela Holdings - Professional services in Eastern Cape. Grass cutting, meat processing, equipment hiring, construction & more.">
     <meta name="keywords" content="Nogidela Holdings, Eastern Cape services, grass cutting, meat cutting, equipment hiring, construction">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="{{ url_for('static', filename='images/favicon.ico') }}" type="image/x-icon">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='images/favicon.ico') }}">
+    <meta name="msapplication-TileColor" content="#1a3a52">
+    <meta name="theme-color" content="#1a3a52">
+    
     <title>{% block title %}Nogidela Holdings | Professional Services{% endblock %}</title>
     
     <!-- Bootstrap CSS -->
@@ -38,6 +45,34 @@
             background-color: var(--accent-white); 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             color: var(--text-dark);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* ============ IMPROVED TYPOGRAPHY ============ */
+        p, .lead, .text-muted {
+            line-height: 1.6;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            line-height: 1.3;
+            font-weight: 600;
+        }
+
+        .english-text, .xhosa-text {
+            display: inline-block;
+            line-height: 1.5;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .card-body {
             line-height: 1.6;
         }
 
@@ -89,7 +124,7 @@
             align-items: center;
             padding: 0;
             margin: 0;
-            margin-left: -10px; /* Adjust this value to move logo left */
+            margin-left: -10px;
             transition: transform 0.3s ease;
         }
 

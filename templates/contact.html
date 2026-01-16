@@ -77,6 +77,8 @@
     .contact-details p {
         margin: 0;
         color: #6c757d;
+        word-break: break-word;
+        overflow-wrap: break-word;
     }
 
     .contact-details a {
@@ -88,6 +90,23 @@
 
     .contact-details a:hover {
         color: var(--navy);
+    }
+
+    /* Fix for email address breaking */
+    .contact-item:nth-child(3) .contact-details p {
+        word-break: break-all;
+        max-width: 250px;
+    }
+
+    .email-address {
+        word-break: break-all;
+        word-wrap: break-word;
+        max-width: 100%;
+    }
+
+    .email-address a {
+        display: inline-block;
+        max-width: 100%;
     }
 
     /* Form Styling */
@@ -173,6 +192,10 @@
         .contact-container {
             margin-top: -2rem;
         }
+
+        .contact-item:nth-child(3) .contact-details p {
+            max-width: 200px;
+        }
     }
 </style>
 {% endblock %}
@@ -257,7 +280,9 @@
                                     <span class="english-text">Email</span>
                                     <span class="xhosa-text">I-imeyili</span>
                                 </h5>
-                                <p><a href="mailto:{{ contacts.email }}">mbeko@nogidelaholdings.co.za</a></p>
+                                <p class="email-address">
+                                    <a href="mailto:{{ contacts.email }}" class="text-break">{{ contacts.email }}</a>
+                                </p>
                             </div>
                         </div>
 
